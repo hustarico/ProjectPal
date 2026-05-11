@@ -1,4 +1,4 @@
-package com._4.ProjectPal.repository;
+package com._4.ProjectPal.user;
 
 import com._4.ProjectPal.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

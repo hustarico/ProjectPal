@@ -1,6 +1,6 @@
 package com._4.ProjectPal.auth;
 
-import com._4.ProjectPal.repository.UserRepository;
+import com._4.ProjectPal.user.UserRepository;
 import com._4.ProjectPal.service.JwtService;
 import com._4.ProjectPal.user.Role;
 import com._4.ProjectPal.user.User;
