@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,6 +42,12 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Builder.Default
     private Boolean isActive = true;
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<UserSkill> userSkills = new ArrayList<>();
+
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

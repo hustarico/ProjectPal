@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
     List<Project> findByOwnerIdAndIsDeletedFalse(Integer ownerId);
-    List<Project> findByIsDeletedFalseAndStatus(ProjectStatus status);
+    List<Project> findByStatusAndIsDeletedFalse(ProjectStatus status);
 }

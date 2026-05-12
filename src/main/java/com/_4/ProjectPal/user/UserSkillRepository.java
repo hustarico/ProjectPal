@@ -10,4 +10,7 @@ public interface UserSkillRepository extends JpaRepository<UserSkill, Integer> {
     boolean existsByUserAndSkill(User user, Skill skill);
     Optional<UserSkill> findByUserAndSkillId(User user, Integer skillId);
     List<UserSkill> findByUser(User user);
+
+    List<UserSkill> findBySkillId(Integer skillId);
+    List<UserSkill> findBySkillIdAndExperienceLevel(Integer skillId, ExperienceLevel experienceLevel);
 }
