@@ -1,0 +1,107 @@
+=== AUTH ===
+POST /api/auth/register
+Body: { "firstName": "string", "lastName": "string", "email": "string", "password": "string" }
+Auth: No
+POST /api/auth/authenticate
+Body: { "email": "string", "password": "string" }
+Response: { "token": "string" }
+Auth: No
+GET /api/test/protected
+Auth: Yes
+GET /api/test/unprotected
+Auth: No
+=== PROJECTS ===
+POST /api/projects
+Body: { "name": "string", "description": "string" }
+Auth: Yes
+PATCH /api/projects/{id}
+Body: { "name": "string", "description": "string", "status": "OPEN|IN_PROGRESS|COMPLETED" }
+Auth: Yes
+DELETE /api/projects/{id}
+Auth: Yes
+GET /api/projects/{id}
+Auth: Yes
+GET /api/projects/my
+Auth: Yes
+GET /api/projects/browse
+Auth: Yes
+=== INVITATIONS ===
+POST /api/invitations/invite?projectId={id}&receiverId={id}
+Auth: Yes
+POST /api/invitations/join-request?projectId={id}
+Auth: Yes
+PATCH /api/invitations/{id}/respond
+Body: { "accept": boolean }
+Auth: Yes
+GET /api/invitations/my
+Auth: Yes
+GET /api/invitations/join-requests/{projectId}
+Auth: Yes
+=== TASKS ===
+POST /api/tasks?projectId={id}
+Body: { "title": "string", "description": "string", "deadline": "ISO datetime", "projectId": int, "assigneeId": int|null }
+Auth: Yes
+PATCH /api/tasks/{id}/assign?assigneeId={id}
+Auth: Yes
+PATCH /api/tasks/{id}/status?status=TODO|IN_PROGRESS|DONE|CANCELLED
+Auth: Yes
+GET /api/tasks/project/{projectId}
+Auth: Yes
+=== MESSAGES ===
+POST /api/messages/project/{projectId}
+Body: { "projectId": int, "content": "string", "fileUrl": "string|null", "fileName": "string|null" }
+Auth: Yes
+GET /api/messages/project/{projectId}
+Auth: Yes
+=== NOTIFICATIONS ===
+GET /api/notifications
+Auth: Yes
+=== RATINGS ===
+POST /api/ratings
+Body: { "rateeId": int, "projectId": int, "score": int }
+Auth: Yes
+GET /api/ratings/user/{userId}
+Auth: No
+=== SKILLS ===
+GET /api/skills
+Auth: No
+POST /api/skills
+Body: { "name": "string" }
+Auth: Yes
+POST /api/skills/user
+Body: { "skillId": int, "experienceLevel": "BEGINNER|INTERMEDIATE|ADVANCED|PROFESSIONAL" }
+Auth: Yes
+DELETE /api/skills/user/{skillId}
+Auth: Yes
+GET /api/skills/user/{userId}
+Auth: No
+=== SEARCH ===
+GET /api/search/users?name={string}
+Auth: No
+GET /api/search/users/skill?skillId={id}&experienceLevel={enum|null}
+Auth: No
+GET /api/search/users/recommend?skillIds=1,2,3
+Auth: No
+GET /api/search/projects
+Auth: No
+=== USERS ===
+GET /api/users/me
+Auth: Yes
+GET /api/users/{id}
+Auth: No
+PUT /api/users/me
+Body: { "firstName": "string|null", "lastName": "string|null", "bio": "string|null", "profilePictureUrl": "string|null" }
+Auth: Yes
+PUT /api/users/me/password
+Body: { "oldPassword": "string", "newPassword": "string" }
+Auth: Yes
+POST /api/users/me/profile-picture
+Body: multipart/form-data — field name: "file"
+Auth: Yes
+POST /api/users/me/skills
+Body: { "skillId": int, "experienceLevel": "BEGINNER|INTERMEDIATE|ADVANCED|PROFESSIONAL" }
+Auth: Yes
+DELETE /api/users/me/skills/{skillId}
+Auth: Yes
+GET /api/users/me/skills
+Auth: Yes
