@@ -26,14 +26,8 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<SearchUserResult> searchUsersByName(String name) {
-        // TODO: Replace with @Query using LIKE for better performance with large datasets
-        // Example: @Query("SELECT u FROM User u WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName)) LIKE LOWER(CONCAT('%', :name, '%'))")
-        return userRepository.findAll().stream()
+        return userRepository.searchByName(name).stream()
                 .filter(u -> u.getIsActive())
-                .filter(u -> {
-                    String fullName = (u.getFirstName() + " " + u.getLastName()).toLowerCase();
-                    return fullName.contains(name.toLowerCase());
-                })
                 .map(this::toUserResult)
                 .collect(Collectors.toList());
     }
@@ -73,6 +67,22 @@ public class SearchServiceImpl implements SearchService {
                 .filter(e -> e.getKey().getIsActive())
                 .sorted((a, b) -> Integer.compare(b.getValue().size(), a.getValue().size()))
                 .map(Map.Entry::getKey)
+                .map(this::toUserResult)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SearchUserResult> searchUsers(String name, List<Integer> skillIds) {
+        if (skillIds == null || skillIds.isEmpty()) {
+            return searchUsersByName(name == null ? "" : name);
+        }
+
+        return userRepository.searchByNameAndSkills(
+                name == null ? "" : name,
+                skillIds,
+                (long) skillIds.size()
+        ).stream()
+                .filter(User::getIsActive)
                 .map(this::toUserResult)
                 .collect(Collectors.toList());
     }

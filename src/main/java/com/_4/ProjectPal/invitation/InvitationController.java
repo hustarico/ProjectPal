@@ -1,5 +1,6 @@
 package com._4.ProjectPal.invitation;
 
+import com._4.ProjectPal.invitation.dto.CreateInvitationRequest;
 import com._4.ProjectPal.invitation.dto.InvitationResponse;
 import com._4.ProjectPal.invitation.dto.RespondInvitationRequest;
 import com._4.ProjectPal.user.User;
@@ -28,10 +29,9 @@ public class InvitationController {
 
     @PostMapping("/invite")
     @ResponseStatus(HttpStatus.CREATED)
-    public InvitationResponse sendInvite(@RequestParam Integer projectId,
-                                          @RequestParam Integer receiverId,
+    public InvitationResponse sendInvite(@Validated @RequestBody CreateInvitationRequest request,
                                           Authentication authentication) {
-        return invitationService.sendInvite(projectId, receiverId, currentUser(authentication));
+        return invitationService.sendInvite(request.getProjectId(), request.getReceiverId(), currentUser(authentication));
     }
 
     @PostMapping("/join-request")

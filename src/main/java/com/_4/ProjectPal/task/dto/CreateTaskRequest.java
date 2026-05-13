@@ -16,6 +16,4 @@ public class CreateTaskRequest {
     private String title;
     private String description;
     private LocalDateTime deadline;
-    private Integer projectId;
-    private Integer assigneeId;
 }

@@ -2,7 +2,9 @@ package com._4.ProjectPal.search;
 
 import com._4.ProjectPal.user.ExperienceLevel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +35,28 @@ public class SearchController {
                 .map(Integer::parseInt)
                 .toList();
         return searchService.recommendUsersBySkills(ids);
+    }
+
+    @GetMapping("/users/advanced")
+    public List<SearchUserResult> searchUsers(
+            @RequestParam(required = false, defaultValue = "") String name,
+            @RequestParam(required = false) String skillIds) {
+
+        List<Integer> ids;
+        if (skillIds == null || skillIds.isBlank()) {
+            ids = List.of();
+        } else {
+            try {
+                ids = Arrays.stream(skillIds.split(","))
+                        .map(String::trim)
+                        .map(Integer::parseInt)
+                        .toList();
+            } catch (NumberFormatException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid skill ID format");
+            }
+        }
+
+        return searchService.searchUsers(name, ids);
     }
 
     @GetMapping("/projects")

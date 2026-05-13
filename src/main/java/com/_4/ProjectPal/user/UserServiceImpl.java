@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -58,6 +59,9 @@ public class UserServiceImpl implements UserService {
         if (request.getBio() != null) {
             user.setBio(request.getBio());
         }
+        if (request.getProfilePictureUrl() != null) {
+            user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
 
         User saved = userRepository.save(user);
         return toProfileResponse(saved);
@@ -72,14 +76,36 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(BAD_REQUEST, "Old password is incorrect");
         }
 
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new ResponseStatusException(BAD_REQUEST, "New password and confirmation do not match");
+        }
+
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
+
+    private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
+            "image/jpeg", "image/png", "image/gif", "image/webp"
+    );
+    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
     @Override
     public UserProfileResponse uploadProfilePicture(Integer userId, MultipartFile file) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User not found"));
+
+        if (file.isEmpty()) {
+            throw new ResponseStatusException(BAD_REQUEST, "File is empty");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            throw new ResponseStatusException(BAD_REQUEST, "Invalid file type. Allowed: JPEG, PNG, GIF, WebP");
+        }
+
+        if (file.getSize() > MAX_FILE_SIZE) {
+            throw new ResponseStatusException(BAD_REQUEST, "File size exceeds maximum of 5MB");
+        }
 
         String uploadDir = "./uploads/profile-pictures";
         File directory = new File(uploadDir);
@@ -87,7 +113,12 @@ public class UserServiceImpl implements UserService {
             directory.mkdirs();
         }
 
-        String fileName = userId + "_" + file.getOriginalFilename();
+        String originalName = file.getOriginalFilename();
+        String extension = "";
+        if (originalName != null && originalName.contains(".")) {
+            extension = originalName.substring(originalName.lastIndexOf("."));
+        }
+        String fileName = userId + "_" + System.currentTimeMillis() + extension;
         Path filePath = Paths.get(uploadDir, fileName);
 
         try {

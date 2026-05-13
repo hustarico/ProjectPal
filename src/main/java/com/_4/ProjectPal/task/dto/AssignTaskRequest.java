@@ -1,4 +1,4 @@
-package com._4.ProjectPal.message.dto;
+package com._4.ProjectPal.task.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendMessageRequest {
-
-    private String content;
-    private String fileUrl;
-    private String fileName;
+public class AssignTaskRequest {
+    private Integer assigneeId;
 }

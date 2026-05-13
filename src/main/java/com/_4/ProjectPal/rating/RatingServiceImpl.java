@@ -3,6 +3,7 @@ package com._4.ProjectPal.rating;
 import com._4.ProjectPal.project.Project;
 import com._4.ProjectPal.project.ProjectMemberRepository;
 import com._4.ProjectPal.project.ProjectRepository;
+import com._4.ProjectPal.project.ProjectStatus;
 import com._4.ProjectPal.rating.dto.CreateRatingRequest;
 import com._4.ProjectPal.rating.dto.RatingResponse;
 import com._4.ProjectPal.user.User;
@@ -36,6 +37,10 @@ public class RatingServiceImpl implements RatingService {
 
         User ratee = userRepository.findById(request.getRateeId())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Ratee not found"));
+
+        if (project.getStatus() != ProjectStatus.COMPLETED) {
+            throw new ResponseStatusException(BAD_REQUEST, "Can only rate users on completed projects");
+        }
 
         if (currentUser.getId().equals(ratee.getId())) {
             throw new ResponseStatusException(BAD_REQUEST, "You cannot rate yourself");

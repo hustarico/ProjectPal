@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import com._4.ProjectPal.user.dto.UserSkillResponse;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor

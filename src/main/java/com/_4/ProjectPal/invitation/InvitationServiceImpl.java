@@ -2,6 +2,8 @@ package com._4.ProjectPal.invitation;
 
 import com._4.ProjectPal.invitation.dto.InvitationResponse;
 import com._4.ProjectPal.invitation.dto.RespondInvitationRequest;
+import com._4.ProjectPal.notification.NotificationService;
+import com._4.ProjectPal.notification.NotificationType;
 import com._4.ProjectPal.project.MemberRole;
 import com._4.ProjectPal.project.Project;
 import com._4.ProjectPal.project.ProjectMember;
@@ -29,6 +31,7 @@ public class InvitationServiceImpl implements InvitationService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public InvitationResponse sendInvite(Integer projectId, Integer receiverId, User currentUser) {
@@ -42,6 +45,10 @@ public class InvitationServiceImpl implements InvitationService {
 
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Receiver not found"));
+
+        if (projectMemberRepository.existsByProjectAndUser(project, receiver)) {
+            throw new ResponseStatusException(BAD_REQUEST, "User is already a member of this project");
+        }
 
         boolean exists = invitationRepository.existsByProjectAndReceiverAndTypeAndStatus(
                 project, receiver, InvitationType.INVITE, InvitationStatus.PENDING);
@@ -58,6 +65,14 @@ public class InvitationServiceImpl implements InvitationService {
                 .build();
 
         Invitation saved = invitationRepository.save(invitation);
+
+        notificationService.createNotification(
+                receiver,
+                NotificationType.PROJECT_INVITATION,
+                "You have been invited to join project: " + project.getName(),
+                project
+        );
+
         return toResponse(saved);
     }
 
@@ -86,6 +101,14 @@ public class InvitationServiceImpl implements InvitationService {
                 .build();
 
         Invitation saved = invitationRepository.save(invitation);
+
+        notificationService.createNotification(
+                project.getOwner(),
+                NotificationType.JOIN_REQUEST,
+                currentUser.getEmail() + " wants to join your project: " + project.getName(),
+                project
+        );
+
         return toResponse(saved);
     }
 
@@ -118,8 +141,28 @@ public class InvitationServiceImpl implements InvitationService {
 
             projectMemberRepository.save(projectMember);
             invitation.setStatus(InvitationStatus.ACCEPTED);
+
+            User notifiedUser = (invitation.getType() == InvitationType.INVITE)
+                    ? invitation.getSender()
+                    : invitation.getReceiver();
+            notificationService.createNotification(
+                    notifiedUser,
+                    NotificationType.JOIN_APPROVED,
+                    "Your " + invitation.getType().name().toLowerCase() + " was accepted for project: " + invitation.getProject().getName(),
+                    invitation.getProject()
+            );
         } else {
             invitation.setStatus(InvitationStatus.REJECTED);
+
+            User notifiedUser = (invitation.getType() == InvitationType.INVITE)
+                    ? invitation.getSender()
+                    : invitation.getReceiver();
+            notificationService.createNotification(
+                    notifiedUser,
+                    NotificationType.JOIN_REJECTED,
+                    "Your " + invitation.getType().name().toLowerCase() + " was rejected for project: " + invitation.getProject().getName(),
+                    invitation.getProject()
+            );
         }
 
         Invitation saved = invitationRepository.save(invitation);

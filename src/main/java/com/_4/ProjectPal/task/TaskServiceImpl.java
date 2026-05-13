@@ -1,5 +1,7 @@
 package com._4.ProjectPal.task;
 
+import com._4.ProjectPal.notification.NotificationService;
+import com._4.ProjectPal.notification.NotificationType;
 import com._4.ProjectPal.project.Project;
 import com._4.ProjectPal.project.ProjectMemberRepository;
 import com._4.ProjectPal.project.ProjectRepository;
@@ -27,6 +29,7 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Override
     public TaskResponse createTask(Integer projectId, CreateTaskRequest request, User currentUser) {
@@ -70,6 +73,14 @@ public class TaskServiceImpl implements TaskService {
 
         task.setAssignee(assignee);
         Task saved = taskRepository.save(task);
+
+        notificationService.createNotification(
+                assignee,
+                NotificationType.TASK_ASSIGNED,
+                "You have been assigned to task: " + task.getTitle() + " in project: " + task.getProject().getName(),
+                task.getProject()
+        );
+
         return toResponse(saved);
     }
 
@@ -121,6 +132,8 @@ public class TaskServiceImpl implements TaskService {
                 .assigneeId(task.getAssignee() != null ? task.getAssignee().getId() : null)
                 .assigneeName(task.getAssignee() != null ? task.getAssignee().getEmail() : null)
                 .isDeleted(task.getIsDeleted())
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
                 .build();
     }
 }

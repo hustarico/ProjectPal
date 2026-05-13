@@ -3,6 +3,8 @@ package com._4.ProjectPal.rating;
 import com._4.ProjectPal.project.Project;
 import com._4.ProjectPal.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +34,8 @@ public class Rating {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @Min(1)
+    @Max(5)
     @Column(nullable = false)
     private Integer score;
 }

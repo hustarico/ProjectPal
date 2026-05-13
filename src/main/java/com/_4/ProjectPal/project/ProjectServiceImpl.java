@@ -9,8 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
@@ -101,8 +104,17 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectResponse> getMyProjects(User currentUser) {
-        return projectRepository.findByOwnerIdAndIsDeletedFalse(currentUser.getId())
+        Set<Project> projects = new HashSet<>();
+
+        projects.addAll(projectRepository.findByOwnerIdAndIsDeletedFalse(currentUser.getId()));
+
+        projectMemberRepository.findByUser(currentUser)
                 .stream()
+                .map(ProjectMember::getProject)
+                .filter(p -> !p.getIsDeleted())
+                .forEach(projects::add);
+
+        return projects.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }

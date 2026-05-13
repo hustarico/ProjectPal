@@ -1,7 +1,9 @@
 package com._4.ProjectPal.task;
 
+import com._4.ProjectPal.task.dto.AssignTaskRequest;
 import com._4.ProjectPal.task.dto.CreateTaskRequest;
 import com._4.ProjectPal.task.dto.TaskResponse;
+import com._4.ProjectPal.task.dto.UpdateTaskStatusRequest;
 import com._4.ProjectPal.user.User;
 import com._4.ProjectPal.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +38,16 @@ public class TaskController {
 
     @PatchMapping("/{id}/assign")
     public TaskResponse assignTask(@PathVariable Integer id,
-                                    @RequestParam Integer assigneeId,
+                                    @Validated @RequestBody AssignTaskRequest request,
                                     Authentication authentication) {
-        return taskService.assignTask(id, assigneeId, currentUser(authentication));
+        return taskService.assignTask(id, request.getAssigneeId(), currentUser(authentication));
     }
 
     @PatchMapping("/{id}/status")
     public TaskResponse updateTaskStatus(@PathVariable Integer id,
-                                         @RequestParam TaskStatus status,
-                                         Authentication authentication) {
-        return taskService.updateTaskStatus(id, status, currentUser(authentication));
+                                          @Validated @RequestBody UpdateTaskStatusRequest request,
+                                          Authentication authentication) {
+        return taskService.updateTaskStatus(id, request.getStatus(), currentUser(authentication));
     }
 
     @GetMapping("/project/{projectId}")

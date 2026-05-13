@@ -8,5 +8,6 @@ public interface SearchService {
     List<SearchUserResult> searchUsersByName(String name);
     List<SearchUserResult> searchUsersBySkill(Integer skillId, ExperienceLevel experienceLevel);
     List<SearchUserResult> recommendUsersBySkills(List<Integer> skillIds);
+    List<SearchUserResult> searchUsers(String name, List<Integer> skillIds);
     List<SearchProjectResult> browseOpenProjects();
 }

@@ -2,8 +2,10 @@ package com._4.ProjectPal.skill;
 
 import com._4.ProjectPal.skill.dto.CreateSkillRequest;
 import com._4.ProjectPal.skill.dto.SkillResponse;
+import com._4.ProjectPal.user.Role;
 import com._4.ProjectPal.user.User;
 import com._4.ProjectPal.user.UserRepository;
+import com._4.ProjectPal.user.UserService;
 import com._4.ProjectPal.user.dto.AddUserSkillRequest;
 import com._4.ProjectPal.user.dto.UserSkillResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 public class SkillController {
 
     private final SkillService skillService;
+    private final UserService userService;
     private final UserRepository userRepository;
 
     private User currentUser(Authentication auth) {
@@ -37,6 +40,10 @@ public class SkillController {
     @ResponseStatus(HttpStatus.CREATED)
     public SkillResponse createSkill(@Validated @RequestBody CreateSkillRequest request,
                                       Authentication authentication) {
+        User currentUser = currentUser(authentication);
+        if (currentUser.getRole() != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can create skills");
+        }
         return skillService.createSkill(request);
     }
 
@@ -44,18 +51,20 @@ public class SkillController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserSkillResponse addSkillToUser(@Validated @RequestBody AddUserSkillRequest request,
                                               Authentication authentication) {
-        return skillService.addSkillToUser(request, currentUser(authentication));
+        User currentUser = currentUser(authentication);
+        return userService.addSkill(currentUser.getId(), request);
     }
 
     @DeleteMapping("/user/{skillId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeSkillFromUser(@PathVariable Integer skillId,
-                                     Authentication authentication) {
-        skillService.removeSkillFromUser(skillId, currentUser(authentication));
+                                      Authentication authentication) {
+        User currentUser = currentUser(authentication);
+        userService.removeSkill(currentUser.getId(), skillId);
     }
 
     @GetMapping("/user/{userId}")
     public List<UserSkillResponse> getUserSkills(@PathVariable Integer userId) {
-        return skillService.getUserSkills(userId);
+        return userService.getSkills(userId);
     }
 }

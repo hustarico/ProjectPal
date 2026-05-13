@@ -23,4 +23,6 @@ public class TaskResponse {
     private Integer assigneeId;
     private String assigneeName;
     private Boolean isDeleted;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

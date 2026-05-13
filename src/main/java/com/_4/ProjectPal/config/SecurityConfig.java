@@ -3,6 +3,7 @@ package com._4.ProjectPal.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -35,15 +36,13 @@ public class SecurityConfig {
 
                 // Define endpoint-level access rules.
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/test/unprotected",
-                                "/api/skills",
-                                "/api/skills/user/{userId}",
-                                "/api/users/{id}",
-                                "/api/search/**",
-                                "/api/ratings/user/{userId}"
-                        ).permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/test/unprotected").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/skills").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/skills/user/{userId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                        .requestMatchers("/api/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/ratings/user/{userId}").permitAll()
                         .anyRequest().authenticated()
                 )
 
