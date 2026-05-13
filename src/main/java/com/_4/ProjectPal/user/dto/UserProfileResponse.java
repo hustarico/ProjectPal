@@ -6,6 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import com._4.ProjectPal.user.dto.UserSkillResponse;
+
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -20,4 +25,5 @@ public class UserProfileResponse {
     private String profilePictureUrl;
     private Boolean isActive;
     private Role role;
+    private List<UserSkillResponse> skills;
 }

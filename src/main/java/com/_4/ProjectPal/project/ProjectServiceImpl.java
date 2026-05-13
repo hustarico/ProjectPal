@@ -109,7 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectResponse> browseAvailableProjects(User currentUser) {
-        return projectRepository.findByIsDeletedFalseAndStatus(ProjectStatus.OPEN)
+        return projectRepository.findByStatusAndIsDeletedFalse(ProjectStatus.OPEN)
                 .stream()
                 .filter(p -> !projectMemberRepository.existsByProjectAndUser(p, currentUser))
                 .map(this::toResponse)

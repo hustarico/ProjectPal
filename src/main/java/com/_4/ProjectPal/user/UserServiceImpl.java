@@ -145,17 +145,22 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserProfileResponse toProfileResponse(User user) {
-        return UserProfileResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .bio(user.getBio())
-                .profilePictureUrl(user.getProfilePictureUrl())
-                .isActive(user.getIsActive())
-                .role(user.getRole())
-                .build();
-    }
+    List<UserSkillResponse> skills = user.getUserSkills().stream()
+            .map(this::toUserSkillResponse)
+            .collect(Collectors.toList());
+    return UserProfileResponse.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .firstName(user.getFirstName())
+            .lastName(user.getLastName())
+            .bio(user.getBio())
+            .profilePictureUrl(user.getProfilePictureUrl())
+            .isActive(user.getIsActive())
+            .role(user.getRole())
+            .skills(skills)
+            .build();
+}
+
 
     private UserSkillResponse toUserSkillResponse(UserSkill userSkill) {
         return UserSkillResponse.builder()

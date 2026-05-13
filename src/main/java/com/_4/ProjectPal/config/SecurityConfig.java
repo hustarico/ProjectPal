@@ -35,9 +35,15 @@ public class SecurityConfig {
 
                 // Define endpoint-level access rules.
                 .authorizeHttpRequests(auth -> auth
-                        // All endpoints under /api/auth/** are publicly accessible (register, login).
-                        .requestMatchers("/api/auth/**","api/test/unprotected").permitAll()
-                        // Everything else requires authentication.
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/test/unprotected",
+                                "/api/skills",
+                                "/api/skills/user/{userId}",
+                                "/api/users/{id}",
+                                "/api/search/**",
+                                "/api/ratings/user/{userId}"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 
