@@ -1,6 +1,7 @@
 package com._4.ProjectPal.project;
 
 import com._4.ProjectPal.project.dto.CreateProjectRequest;
+import com._4.ProjectPal.project.dto.ProjectMemberResponse;
 import com._4.ProjectPal.project.dto.ProjectResponse;
 import com._4.ProjectPal.project.dto.UpdateProjectRequest;
 import com._4.ProjectPal.user.User;
@@ -125,6 +126,56 @@ public class ProjectServiceImpl implements ProjectService {
                 .stream()
                 .filter(p -> !projectMemberRepository.existsByProjectAndUser(p, currentUser))
                 .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProjectMemberResponse> updateMemberRole(Integer projectId, Integer userId, MemberRole newRole, User currentUser) {
+        Project project = projectRepository.findById(projectId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
+
+        if (!project.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        }
+
+        ProjectMember member = projectMemberRepository.findByProject(project).stream()
+                .filter(pm -> pm.getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User is not a member of this project"));
+
+        if (member.getMemberRole() == MemberRole.OWNER) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot change the owner's role");
+        }
+
+        member.setMemberRole(newRole);
+        projectMemberRepository.save(member);
+
+        return getProjectMembers(projectId, currentUser);
+    }
+
+    @Override
+    public List<ProjectMemberResponse> getProjectMembers(Integer projectId, User currentUser) {
+        Project project = projectRepository.findById(projectId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
+
+        boolean isOwner = project.getOwner().getId().equals(currentUser.getId());
+        boolean isMember = projectMemberRepository.existsByProjectAndUser(project, currentUser);
+
+        if (!isOwner && !isMember) {
+            throw new ResponseStatusException(FORBIDDEN, "You are not a member of this project");
+        }
+
+        return projectMemberRepository.findByProject(project).stream()
+                .map(pm -> ProjectMemberResponse.builder()
+                        .userId(pm.getUser().getId())
+                        .email(pm.getUser().getEmail())
+                        .firstName(pm.getUser().getFirstName())
+                        .lastName(pm.getUser().getLastName())
+                        .profilePictureUrl(pm.getUser().getProfilePictureUrl())
+                        .memberRole(pm.getMemberRole())
+                        .build())
                 .collect(Collectors.toList());
     }
 

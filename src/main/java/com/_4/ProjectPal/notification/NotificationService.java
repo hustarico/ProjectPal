@@ -9,4 +9,6 @@ import java.util.List;
 public interface NotificationService {
     void createNotification(User recipient, NotificationType type, String message, Project project);
     List<NotificationResponse> getNotificationsForUser(User currentUser);
+    void deleteNotification(Integer notificationId, User currentUser);
+    void deleteAllNotifications(User currentUser);
 }

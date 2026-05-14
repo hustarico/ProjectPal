@@ -3,8 +3,11 @@ package com._4.ProjectPal.notification;
 import com._4.ProjectPal.notification.dto.NotificationResponse;
 import com._4.ProjectPal.project.Project;
 import com._4.ProjectPal.user.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +36,26 @@ public class NotificationServiceImpl implements NotificationService {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteNotification(Integer notificationId, User currentUser) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+
+        if (!notification.getRecipient().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only delete your own notifications");
+        }
+
+        notificationRepository.delete(notification);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllNotifications(User currentUser) {
+        List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(currentUser);
+        notificationRepository.deleteAll(notifications);
     }
 
     private NotificationResponse toResponse(Notification notification) {

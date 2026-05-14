@@ -28,4 +28,16 @@ public class NotificationController {
     public List<NotificationResponse> getNotificationsForUser(Authentication authentication) {
         return notificationService.getNotificationsForUser(currentUser(authentication));
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteNotification(@PathVariable Integer id, Authentication authentication) {
+        notificationService.deleteNotification(id, currentUser(authentication));
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAllNotifications(Authentication authentication) {
+        notificationService.deleteAllNotifications(currentUser(authentication));
+    }
 }

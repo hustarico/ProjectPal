@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProjectMemberResponse {
 
-    private Integer id;
-    private Integer projectId;
     private Integer userId;
-    private String userName;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String profilePictureUrl;
     private MemberRole memberRole;
 }

@@ -1,6 +1,8 @@
 package com._4.ProjectPal.project;
 
 import com._4.ProjectPal.project.dto.CreateProjectRequest;
+import com._4.ProjectPal.project.dto.ProjectMemberResponse;
+import com._4.ProjectPal.project.dto.UpdateMemberRoleRequest;
 //import jakarta.validation.Valid;
 import com._4.ProjectPal.project.dto.ProjectResponse;
 import com._4.ProjectPal.project.dto.UpdateProjectRequest;
@@ -63,5 +65,19 @@ public class ProjectController {
     @GetMapping("/browse")
     public List<ProjectResponse> browseAvailableProjects(Authentication authentication) {
         return projectService.browseAvailableProjects(currentUser(authentication));
+    }
+
+    @GetMapping("/{id}/members")
+    public List<ProjectMemberResponse> getProjectMembers(@PathVariable Integer id,
+                                                           Authentication authentication) {
+        return projectService.getProjectMembers(id, currentUser(authentication));
+    }
+
+    @PatchMapping("/{projectId}/members/{userId}/role")
+    public List<ProjectMemberResponse> updateMemberRole(@PathVariable Integer projectId,
+                                                         @PathVariable Integer userId,
+                                                         @Validated @RequestBody UpdateMemberRoleRequest request,
+                                                         Authentication authentication) {
+        return projectService.updateMemberRole(projectId, userId, request.getMemberRole(), currentUser(authentication));
     }
 }

@@ -3,6 +3,7 @@ package com._4.ProjectPal.project;
 import com._4.ProjectPal.project.dto.CreateProjectRequest;
 import com._4.ProjectPal.project.dto.ProjectResponse;
 import com._4.ProjectPal.project.dto.UpdateProjectRequest;
+import com._4.ProjectPal.project.dto.ProjectMemberResponse;
 import com._4.ProjectPal.user.User;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface ProjectService {
     ProjectResponse getProjectById(Integer projectId, User currentUser);
     List<ProjectResponse> getMyProjects(User currentUser);
     List<ProjectResponse> browseAvailableProjects(User currentUser);
+    List<ProjectMemberResponse> getProjectMembers(Integer projectId, User currentUser);
+    List<ProjectMemberResponse> updateMemberRole(Integer projectId, Integer userId, MemberRole memberRole, User currentUser);
 }

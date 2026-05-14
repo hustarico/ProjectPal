@@ -2,7 +2,9 @@ package com._4.ProjectPal.task;
 
 import com._4.ProjectPal.notification.NotificationService;
 import com._4.ProjectPal.notification.NotificationType;
+import com._4.ProjectPal.project.MemberRole;
 import com._4.ProjectPal.project.Project;
+import com._4.ProjectPal.project.ProjectMember;
 import com._4.ProjectPal.project.ProjectMemberRepository;
 import com._4.ProjectPal.project.ProjectRepository;
 import com._4.ProjectPal.task.dto.CreateTaskRequest;
@@ -32,14 +34,21 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
 
+    private boolean isOwnerOrAdmin(Project project, User user) {
+        if (project.getOwner().getId().equals(user.getId())) return true;
+        return projectMemberRepository.findByProjectAndUser(project, user)
+                .map(pm -> pm.getMemberRole() == MemberRole.ADMIN)
+                .orElse(false);
+    }
+
     @Override
     public TaskResponse createTask(Integer projectId, CreateTaskRequest request, User currentUser) {
         Project project = projectRepository.findById(projectId)
                 .filter(p -> !p.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
 
-        if (!project.getOwner().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        if (!isOwnerOrAdmin(project, currentUser)) {
+            throw new ResponseStatusException(FORBIDDEN, "Only the owner or an admin can create tasks");
         }
 
         Task task = Task.builder()
@@ -61,8 +70,8 @@ public class TaskServiceImpl implements TaskService {
                 .filter(t -> !t.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
 
-        if (!task.getProject().getOwner().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        if (!isOwnerOrAdmin(task.getProject(), currentUser)) {
+            throw new ResponseStatusException(FORBIDDEN, "Only the owner or an admin can assign tasks");
         }
 
         User assignee = userRepository.findById(assigneeId)
@@ -91,10 +100,8 @@ public class TaskServiceImpl implements TaskService {
                 .filter(t -> !t.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
 
-        boolean isOwner = task.getProject().getOwner().getId().equals(currentUser.getId());
         boolean isAssignee = task.getAssignee() != null && task.getAssignee().getId().equals(currentUser.getId());
-
-        if (!isOwner && !isAssignee) {
+        if (!isOwnerOrAdmin(task.getProject(), currentUser) && !isAssignee) {
             throw new ResponseStatusException(FORBIDDEN, "You are not authorized to update this task");
         }
 
@@ -109,10 +116,10 @@ public class TaskServiceImpl implements TaskService {
                 .filter(t -> !t.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
 
-        boolean isOwner = task.getProject().getOwner().getId().equals(currentUser.getId());
+        boolean canManage = isOwnerOrAdmin(task.getProject(), currentUser);
         boolean isAssignee = task.getAssignee() != null && task.getAssignee().getId().equals(currentUser.getId());
 
-        if (!isOwner && !isAssignee) {
+        if (!canManage && !isAssignee) {
             throw new ResponseStatusException(FORBIDDEN, "You are not authorized to update this task");
         }
 
@@ -128,7 +135,7 @@ public class TaskServiceImpl implements TaskService {
         if (request.getDeadline() != null) {
             task.setDeadline(request.getDeadline());
         }
-        if (request.getAssigneeId() != null && isOwner) {
+        if (request.getAssigneeId() != null && canManage) {
             User assignee = userRepository.findById(request.getAssigneeId())
                     .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Assignee not found"));
             if (!projectMemberRepository.existsByProjectAndUser(task.getProject(), assignee)) {
@@ -147,8 +154,8 @@ public class TaskServiceImpl implements TaskService {
                 .filter(t -> !t.getIsDeleted())
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
 
-        if (!task.getProject().getOwner().getId().equals(currentUser.getId())) {
-            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        if (!isOwnerOrAdmin(task.getProject(), currentUser)) {
+            throw new ResponseStatusException(FORBIDDEN, "Only the owner or an admin can delete tasks");
         }
 
         task.setIsDeleted(true);

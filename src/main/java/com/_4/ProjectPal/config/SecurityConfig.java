@@ -30,6 +30,17 @@ public class SecurityConfig {
                 // CSRF is disabled because JWTs are immune to CSRF (stateless, no cookies).
                 .csrf(AbstractHttpConfigurer::disable)
 
+                // Use CORS settings from WebMvcConfig.addCorsMappings.
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfiguration.addAllowedOriginPattern("*");
+                    corsConfiguration.addAllowedMethod("*");
+                    corsConfiguration.addAllowedHeader("*");
+                    corsConfiguration.setAllowCredentials(true);
+                    corsConfiguration.setMaxAge(3600L);
+                    return corsConfiguration;
+                }))
+
                 // No HTTP session is created; every request must carry its own JWT.
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
