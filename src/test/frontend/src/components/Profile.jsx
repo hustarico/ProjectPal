@@ -15,7 +15,9 @@ export default function Profile() {
 
   useEffect(() => {
     skillsApi.listSkills()
-      .then(res => setAllSkills(res.data))
+      .then(res => setAllSkills(
+        (res.data || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+      ))
       .catch(() => {});
   }, []);
 

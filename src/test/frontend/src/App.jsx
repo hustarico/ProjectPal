@@ -14,6 +14,7 @@ import CreateProject from './components/CreateProject';
 import ProjectDetail from './components/ProjectDetail';
 import Notifications from './components/Notifications';
 import Search from './components/Search';
+import UserDetail from './components/UserDetail';
 
 function ProtectedLayout() {
   const { user, loading } = useContext(AuthContext);
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/users/:userId" element={<UserDetail />} />
         </Route>
       </Routes>
     </div>

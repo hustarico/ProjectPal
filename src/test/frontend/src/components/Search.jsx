@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as searchApi from '../api/search';
 import * as skillsApi from '../api/skills';
@@ -13,14 +13,13 @@ export default function Search() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const loadSkills = async () => {
-    if (allSkills.length === 0) {
-      try {
-        const res = await skillsApi.listSkills();
-        setAllSkills(res.data);
-      } catch {}
-    }
-  };
+  useEffect(() => {
+    skillsApi.listSkills()
+      .then(res => setAllSkills(
+        (res.data || []).slice().sort((a, b) => a.name.localeCompare(b.name))
+      ))
+      .catch(() => {});
+  }, []);
 
   const handleSearch = async (e) => {
     e?.preventDefault();
@@ -106,7 +105,7 @@ export default function Search() {
           {mode === 'users' && (
             <select
               value={selectedSkill}
-              onChange={e => { setSelectedSkill(e.target.value); loadSkills(); }}
+              onChange={e => setSelectedSkill(e.target.value)}
               style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8 }}
             >
               <option value="">All skills</option>
@@ -164,7 +163,12 @@ export default function Search() {
                   ? `http://localhost:8080${user.profilePictureUrl}`
                   : null;
                 return (
-                  <div key={user.id} className="search-result-item">
+                  <div
+                    key={user.id}
+                    className="search-result-item"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => navigate(`/users/${user.id}`)}
+                  >
                     <div className="result-avatar">
                       {avatarUrl ? <img src={avatarUrl} alt="" /> : initials || '?'}
                     </div>
@@ -172,6 +176,13 @@ export default function Search() {
                       <h4>{user.firstName} {user.lastName}</h4>
                       <p>{user.email}</p>
                       {user.bio && <p>{user.bio}</p>}
+                      {user.skills && user.skills.length > 0 && (
+                        <div className="skills-list" style={{ marginTop: 6 }}>
+                          {user.skills.map((s, i) => (
+                            <span key={i} className="skill-tag">{s.skillName} ({s.experienceLevel})</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <span className={`status-badge ${user.availabilityStatus?.toLowerCase()}`}>
