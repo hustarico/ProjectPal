@@ -7,6 +7,7 @@ import com._4.ProjectPal.project.ProjectMemberRepository;
 import com._4.ProjectPal.project.ProjectRepository;
 import com._4.ProjectPal.task.dto.CreateTaskRequest;
 import com._4.ProjectPal.task.dto.TaskResponse;
+import com._4.ProjectPal.task.dto.UpdateTaskRequest;
 import com._4.ProjectPal.user.User;
 import com._4.ProjectPal.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -100,6 +101,58 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(status);
         Task saved = taskRepository.save(task);
         return toResponse(saved);
+    }
+
+    @Override
+    public TaskResponse updateTask(Integer taskId, UpdateTaskRequest request, User currentUser) {
+        Task task = taskRepository.findById(taskId)
+                .filter(t -> !t.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
+
+        boolean isOwner = task.getProject().getOwner().getId().equals(currentUser.getId());
+        boolean isAssignee = task.getAssignee() != null && task.getAssignee().getId().equals(currentUser.getId());
+
+        if (!isOwner && !isAssignee) {
+            throw new ResponseStatusException(FORBIDDEN, "You are not authorized to update this task");
+        }
+
+        if (request.getTitle() != null) {
+            task.setTitle(request.getTitle());
+        }
+        if (request.getDescription() != null) {
+            task.setDescription(request.getDescription());
+        }
+        if (request.getStatus() != null) {
+            task.setStatus(request.getStatus());
+        }
+        if (request.getDeadline() != null) {
+            task.setDeadline(request.getDeadline());
+        }
+        if (request.getAssigneeId() != null && isOwner) {
+            User assignee = userRepository.findById(request.getAssigneeId())
+                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Assignee not found"));
+            if (!projectMemberRepository.existsByProjectAndUser(task.getProject(), assignee)) {
+                throw new ResponseStatusException(BAD_REQUEST, "Assignee is not a member of this project");
+            }
+            task.setAssignee(assignee);
+        }
+
+        Task saved = taskRepository.save(task);
+        return toResponse(saved);
+    }
+
+    @Override
+    public void softDeleteTask(Integer taskId, User currentUser) {
+        Task task = taskRepository.findById(taskId)
+                .filter(t -> !t.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Task not found"));
+
+        if (!task.getProject().getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        }
+
+        task.setIsDeleted(true);
+        taskRepository.save(task);
     }
 
     @Override

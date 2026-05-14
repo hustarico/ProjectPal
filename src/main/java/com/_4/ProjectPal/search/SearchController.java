@@ -60,7 +60,7 @@ public class SearchController {
     }
 
     @GetMapping("/projects")
-    public List<SearchProjectResult> browseOpenProjects() {
-        return searchService.browseOpenProjects();
+    public List<SearchProjectResult> browseOpenProjects(@RequestParam(required = false, defaultValue = "") String name) {
+        return searchService.browseOpenProjects(name);
     }
 }

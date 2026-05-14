@@ -36,7 +36,9 @@ public class SecurityConfig {
 
                 // Define endpoint-level access rules.
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/logout").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/api/test/unprotected").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/skills").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/skills/user/{userId}").permitAll()

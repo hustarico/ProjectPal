@@ -3,6 +3,7 @@ package com._4.ProjectPal.task;
 import com._4.ProjectPal.task.dto.AssignTaskRequest;
 import com._4.ProjectPal.task.dto.CreateTaskRequest;
 import com._4.ProjectPal.task.dto.TaskResponse;
+import com._4.ProjectPal.task.dto.UpdateTaskRequest;
 import com._4.ProjectPal.task.dto.UpdateTaskStatusRequest;
 import com._4.ProjectPal.user.User;
 import com._4.ProjectPal.user.UserRepository;
@@ -45,14 +46,28 @@ public class TaskController {
 
     @PatchMapping("/{id}/status")
     public TaskResponse updateTaskStatus(@PathVariable Integer id,
-                                          @Validated @RequestBody UpdateTaskStatusRequest request,
-                                          Authentication authentication) {
+                                           @Validated @RequestBody UpdateTaskStatusRequest request,
+                                           Authentication authentication) {
         return taskService.updateTaskStatus(id, request.getStatus(), currentUser(authentication));
+    }
+
+    @PatchMapping("/{id}")
+    public TaskResponse updateTask(@PathVariable Integer id,
+                                    @Validated @RequestBody UpdateTaskRequest request,
+                                    Authentication authentication) {
+        return taskService.updateTask(id, request, currentUser(authentication));
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void softDeleteTask(@PathVariable Integer id,
+                                Authentication authentication) {
+        taskService.softDeleteTask(id, currentUser(authentication));
     }
 
     @GetMapping("/project/{projectId}")
     public List<TaskResponse> getTasksByProject(@PathVariable Integer projectId,
-                                                 Authentication authentication) {
+                                                  Authentication authentication) {
         return taskService.getTasksByProject(projectId, currentUser(authentication));
     }
 }

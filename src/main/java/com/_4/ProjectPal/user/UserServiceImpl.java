@@ -1,5 +1,8 @@
 package com._4.ProjectPal.user;
 
+import com._4.ProjectPal.project.ProjectMemberRepository;
+import com._4.ProjectPal.rating.Rating;
+import com._4.ProjectPal.rating.RatingRepository;
 import com._4.ProjectPal.skill.Skill;
 import com._4.ProjectPal.skill.SkillRepository;
 import com._4.ProjectPal.user.dto.*;
@@ -30,6 +33,8 @@ public class UserServiceImpl implements UserService {
     private final UserSkillRepository userSkillRepository;
     private final SkillRepository skillRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final RatingRepository ratingRepository;
 
     @Override
     public UserProfileResponse getProfile(Integer userId) {
@@ -61,6 +66,9 @@ public class UserServiceImpl implements UserService {
         }
         if (request.getProfilePictureUrl() != null) {
             user.setProfilePictureUrl(request.getProfilePictureUrl());
+        }
+        if (request.getAvailabilityStatus() != null) {
+            user.setAvailabilityStatus(request.getAvailabilityStatus());
         }
 
         User saved = userRepository.save(user);
@@ -176,21 +184,39 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserProfileResponse toProfileResponse(User user) {
-    List<UserSkillResponse> skills = user.getUserSkills().stream()
-            .map(this::toUserSkillResponse)
-            .collect(Collectors.toList());
-    return UserProfileResponse.builder()
-            .id(user.getId())
-            .email(user.getEmail())
-            .firstName(user.getFirstName())
-            .lastName(user.getLastName())
-            .bio(user.getBio())
-            .profilePictureUrl(user.getProfilePictureUrl())
-            .isActive(user.getIsActive())
-            .role(user.getRole())
-            .skills(skills)
-            .build();
-}
+        List<UserSkillResponse> skills = user.getUserSkills().stream()
+                .map(this::toUserSkillResponse)
+                .collect(Collectors.toList());
+
+        List<PastProjectResponse> pastProjects = projectMemberRepository.findByUser(user).stream()
+                .filter(pm -> !pm.getProject().getIsDeleted())
+                .map(pm -> PastProjectResponse.builder()
+                        .id(pm.getProject().getId())
+                        .name(pm.getProject().getName())
+                        .status(pm.getProject().getStatus().name())
+                        .role(pm.getMemberRole().name())
+                        .build())
+                .collect(Collectors.toList());
+
+        List<Rating> ratings = ratingRepository.findByRatee(user);
+        Double averageRating = ratings.isEmpty() ? null :
+                ratings.stream().mapToInt(Rating::getScore).average().orElse(0.0);
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .bio(user.getBio())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .isActive(user.getIsActive())
+                .role(user.getRole())
+                .availabilityStatus(user.getAvailabilityStatus())
+                .skills(skills)
+                .pastProjects(pastProjects)
+                .averageRating(averageRating)
+                .build();
+    }
 
 
     private UserSkillResponse toUserSkillResponse(UserSkill userSkill) {

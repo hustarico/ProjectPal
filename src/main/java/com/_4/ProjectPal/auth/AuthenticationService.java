@@ -1,16 +1,23 @@
 package com._4.ProjectPal.auth;
 
-import com._4.ProjectPal.user.UserRepository;
 import com._4.ProjectPal.service.JwtService;
 import com._4.ProjectPal.user.Role;
 import com._4.ProjectPal.user.User;
+import com._4.ProjectPal.user.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Handles user registration and authentication (login).
@@ -24,6 +31,8 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final BlacklistedTokenRepository blacklistedTokenRepository;
 
     /**
      * Registers a new user account.
@@ -68,5 +77,52 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    public Map<String, String> forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        String token = UUID.randomUUID().toString();
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .build();
+        passwordResetTokenRepository.save(resetToken);
+
+        return Map.of(
+                "message", "Password reset token generated. Use it within 15 minutes.",
+                "resetToken", token
+        );
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        PasswordResetToken resetToken = passwordResetTokenRepository
+                .findByTokenAndUsedFalseAndExpiresAtAfter(request.getToken(), LocalDateTime.now())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid or expired reset token"));
+
+        User user = resetToken.getUser();
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        resetToken.setUsed(true);
+        passwordResetTokenRepository.save(resetToken);
+    }
+
+    public void logout(String jwt) {
+        String tokenId = jwtService.extractTokenId(jwt);
+        if (tokenId == null) return;
+
+        Date expiration = jwtService.extractClaim(jwt, Claims::getExpiration);
+        LocalDateTime expiresAt = expiration.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        BlacklistedToken blacklistedToken = BlacklistedToken.builder()
+                .tokenId(tokenId)
+                .expiresAt(expiresAt)
+                .build();
+        blacklistedTokenRepository.save(blacklistedToken);
     }
 }

@@ -43,6 +43,9 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    private AvailabilityStatus availabilityStatus = AvailabilityStatus.AVAILABLE;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

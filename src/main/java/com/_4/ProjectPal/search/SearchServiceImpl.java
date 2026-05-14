@@ -88,8 +88,13 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<SearchProjectResult> browseOpenProjects() {
-        return projectRepository.findByStatusAndIsDeletedFalse(ProjectStatus.OPEN).stream()
+    public List<SearchProjectResult> browseOpenProjects(String name) {
+        if (name == null || name.isBlank()) {
+            return projectRepository.findByStatusAndIsDeletedFalse(ProjectStatus.OPEN).stream()
+                    .map(this::toProjectResult)
+                    .collect(Collectors.toList());
+        }
+        return projectRepository.findByNameContainingIgnoreCaseAndStatusAndIsDeletedFalse(name, ProjectStatus.OPEN).stream()
                 .map(this::toProjectResult)
                 .collect(Collectors.toList());
     }
