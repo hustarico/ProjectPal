@@ -1,5 +1,6 @@
 package com._4.ProjectPal.message;
 
+import com._4.ProjectPal.message.dto.MessageDeletedEvent;
 import com._4.ProjectPal.message.dto.MessageResponse;
 import com._4.ProjectPal.message.dto.SendMessageRequest;
 import com._4.ProjectPal.notification.NotificationService;
@@ -23,6 +24,7 @@ public class ChatWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MessageRepository messageRepository;
+    private final MessageService messageService;
     private final NotificationService notificationService;
     private final ProjectRepository projectRepository;
     private final ProjectMemberRepository projectMemberRepository;
@@ -74,5 +76,19 @@ public class ChatWebSocketController {
                         sender.getFirstName() + " sent a message in " + project.getName(),
                         project
                 ));
+    }
+
+    @MessageMapping("/chat/{projectId}/delete")
+    public void handleDeleteMessage(
+            @DestinationVariable Integer projectId,
+            Integer messageId,
+            Principal principal) {
+
+        if (principal == null) return;
+        User user = userRepository.findByEmail(principal.getName()).orElse(null);
+        if (user == null) return;
+
+        MessageDeletedEvent event = messageService.deleteMessage(messageId, user);
+        messagingTemplate.convertAndSend("/topic/project/" + event.getProjectId(), event);
     }
 }

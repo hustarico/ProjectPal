@@ -34,10 +34,15 @@ export default function CreateProject() {
           <h1>Create Project</h1>
           <p>Start a new collaboration</p>
         </div>
+        <div className="page-header-actions">
+          <button className="btn btn-secondary" onClick={() => navigate('/')}>
+            Cancel
+          </button>
+        </div>
       </div>
 
-      <div className="card" style={{ maxWidth: 600 }}>
-        {error && <div className="error-message">{error}</div>}
+      <div className="card" style={{ maxWidth: 640 }}>
+        {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Project Name</label>
@@ -54,13 +59,14 @@ export default function CreateProject() {
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="What is this project about?"
+              rows={4}
             />
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="submit" className="btn btn-primary btn-lg" disabled={loading}>
               {loading ? 'Creating...' : 'Create Project'}
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => navigate('/')}>
+            <button type="button" className="btn btn-secondary btn-lg" onClick={() => navigate('/')}>
               Cancel
             </button>
           </div>

@@ -8,6 +8,7 @@ import com._4.ProjectPal.project.dto.ProjectResponse;
 import com._4.ProjectPal.project.dto.UpdateProjectRequest;
 import com._4.ProjectPal.user.User;
 import com._4.ProjectPal.user.UserRepository;
+import com._4.ProjectPal.user.dto.PastProjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -24,6 +26,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserRepository userRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
     private User currentUser(Authentication auth) {
         return userRepository.findByEmail(auth.getName())
@@ -75,9 +78,43 @@ public class ProjectController {
 
     @PatchMapping("/{projectId}/members/{userId}/role")
     public List<ProjectMemberResponse> updateMemberRole(@PathVariable Integer projectId,
-                                                         @PathVariable Integer userId,
-                                                         @Validated @RequestBody UpdateMemberRoleRequest request,
-                                                         Authentication authentication) {
+                                                          @PathVariable Integer userId,
+                                                          @Validated @RequestBody UpdateMemberRoleRequest request,
+                                                          Authentication authentication) {
         return projectService.updateMemberRole(projectId, userId, request.getMemberRole(), currentUser(authentication));
+    }
+
+    @PostMapping("/{id}/complete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void completeProject(@PathVariable Integer id,
+                                 Authentication authentication) {
+        projectService.markProjectCompleted(id, currentUser(authentication));
+    }
+
+    @DeleteMapping("/{projectId}/members/{userId}")
+    public List<ProjectMemberResponse> removeMember(@PathVariable Integer projectId,
+                                                      @PathVariable Integer userId,
+                                                      Authentication authentication) {
+        return projectService.removeMember(projectId, userId, currentUser(authentication));
+    }
+
+    @PostMapping("/{projectId}/leave")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void leaveProject(@PathVariable Integer projectId,
+                              Authentication authentication) {
+        projectService.leaveProject(projectId, currentUser(authentication));
+    }
+
+    @GetMapping("/past")
+    public List<PastProjectResponse> getPastProjects(Authentication authentication) {
+        User user = currentUser(authentication);
+        return projectMemberRepository.findByUserAndFinishedAtIsNotNull(user).stream()
+                .map(pm -> PastProjectResponse.builder()
+                        .id(pm.getProject().getId())
+                        .name(pm.getProject().getName())
+                        .status(pm.getProject().getStatus().name())
+                        .role(pm.getMemberRole().name())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

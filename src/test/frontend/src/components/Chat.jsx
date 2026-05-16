@@ -30,7 +30,20 @@ export default function Chat({ projectId }) {
         setConnected(true);
         client.subscribe(`/topic/project/${projectId}`, (msg) => {
           const data = JSON.parse(msg.body);
-          if (data.senderId !== userIdRef.current) {
+          if (data.type === 'MESSAGE_DELETED') {
+            setMessages(prev => prev.filter(m => m.id !== data.messageId));
+          } else if (data.senderId === userIdRef.current) {
+            setMessages(prev => {
+              const idx = [...prev].reverse().findIndex(m =>
+                m.content === data.content && typeof m.id === 'number' && m.id > 1700000000000
+              );
+              if (idx === -1) return [...prev, data];
+              const realIdx = prev.length - 1 - idx;
+              const updated = [...prev];
+              updated[realIdx] = data;
+              return updated;
+            });
+          } else {
             setMessages(prev => [...prev, data]);
           }
         });
@@ -48,7 +61,7 @@ export default function Chat({ projectId }) {
         setMessages(res.data);
         setTimeout(scrollToBottom, 100);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
 
     return () => {
@@ -87,6 +100,15 @@ export default function Chat({ projectId }) {
     setInput('');
   };
 
+  const handleDeleteMessage = async (messageId) => {
+    try {
+      await messagesApi.deleteMessage(messageId);
+      setMessages(prev => prev.filter(m => m.id !== messageId));
+    } catch (err) {
+      console.error('Failed to delete message', err);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -102,26 +124,23 @@ export default function Chat({ projectId }) {
     }
   };
 
-  if (loading) return <div className="loading-screen">Loading messages...</div>;
+  if (loading) return <div className="loading-screen"><div className="loading-spinner"></div>Loading messages...</div>;
 
   return (
     <div>
-      <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600 }}>Team Chat</h2>
-        <span style={{
-          width: 8, height: 8, borderRadius: '50%',
-          background: connected ? '#22c55e' : '#ef4444',
-          display: 'inline-block'
-        }} />
-        <span style={{ fontSize: 12, color: '#64748b' }}>
-          {connected ? 'Connected' : 'Disconnected'}
-        </span>
-      </div>
-
       <div className="chat-container">
+        <div className="chat-header">
+          <h2>Team Chat</h2>
+          <span className={`chat-status-dot ${connected ? 'connected' : 'disconnected'}`} />
+          <span className="chat-status-text">
+            {connected ? 'Connected' : 'Disconnected'}
+          </span>
+        </div>
+
         <div className="chat-messages">
           {messages.length === 0 && (
             <div className="empty-state">
+              <div className="empty-state-icon">&#128172;</div>
               <p>No messages yet. Start the conversation!</p>
             </div>
           )}
@@ -134,11 +153,23 @@ export default function Chat({ projectId }) {
                 <div className="sender">{msg.senderName}</div>
               )}
               <div>{msg.content}</div>
-              <div className="time">{formatTime(msg.sentAt)}</div>
+              <div className="time-row">
+                <span className="time">{formatTime(msg.sentAt)}</span>
+                {msg.senderId === user?.id && (
+                  <button
+                    className="msg-delete-btn"
+                    onClick={() => handleDeleteMessage(msg.id)}
+                    title="Delete message"
+                  >
+                    &times;
+                  </button>
+                )}
+              </div>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
+
         <div className="chat-input">
           <input
             value={input}

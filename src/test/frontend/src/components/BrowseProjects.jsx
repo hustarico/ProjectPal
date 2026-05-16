@@ -35,29 +35,33 @@ export default function BrowseProjects() {
     }
   };
 
-  if (loading) return <div className="loading-screen">Loading projects...</div>;
+  if (loading) return <div className="loading-screen"><div className="loading-spinner"></div>Loading projects...</div>;
 
   return (
     <div>
       <div className="page-header">
         <div>
           <h1>Browse Projects</h1>
-          <p>Find projects to join and collaborate on</p>
+          <p>Find open projects to join and collaborate on</p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate('/projects/new')}>
-          Create Project
-        </button>
+        <div className="page-header-actions">
+          <button className="btn btn-primary" onClick={() => navigate('/projects/new')}>
+            &#43; Create Project
+          </button>
+        </div>
       </div>
 
       {actionMsg && (
         <div className={actionMsg.includes('sent') ? 'success-message' : 'error-message'}>
           {actionMsg}
+          <button className="message-dismiss" onClick={() => setActionMsg('')}>&times;</button>
         </div>
       )}
 
       {projects.length === 0 ? (
         <div className="card">
           <div className="empty-state">
+            <div className="empty-state-icon">&#128196;</div>
             <p>No open projects available right now.</p>
           </div>
         </div>
@@ -76,13 +80,15 @@ export default function BrowseProjects() {
                 </div>
               </div>
               {project.status === 'OPEN' && (
-                <button
-                  className="btn btn-primary btn-sm"
-                  style={{ marginTop: 12, width: '100%' }}
-                  onClick={() => handleJoin(project.id)}
-                >
-                  Request to Join
-                </button>
+                <div className="project-actions">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    style={{ flex: 1 }}
+                    onClick={() => handleJoin(project.id)}
+                  >
+                    Request to Join
+                  </button>
+                </div>
               )}
             </div>
           ))}

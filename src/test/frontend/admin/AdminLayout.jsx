@@ -1,0 +1,93 @@
+import { useState, useEffect } from 'react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import './admin.css';
+
+export default function AdminLayout() {
+  const navigate = useNavigate();
+  const [admin, setAdmin] = useState(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    const userStr = localStorage.getItem('admin_user');
+    if (!token || !userStr) {
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+    try {
+      const user = JSON.parse(userStr);
+      if (user.role !== 'ADMIN') {
+        localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+      setAdmin(user);
+    } catch {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+    setChecked(true);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    const token = localStorage.getItem('admin_token');
+    if (token) {
+      fetch('http://localhost:8080/api/auth/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    }
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
+    navigate('/admin/login', { replace: true });
+  };
+
+  if (!checked) {
+    return <div className="loading-screen"><div className="loading-spinner"></div>Loading...</div>;
+  }
+
+  return (
+    <div className="admin-layout">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-header">
+          <h1>ProjectPal</h1>
+          <p>Admin Panel</p>
+        </div>
+        <nav className="admin-sidebar-nav">
+          <NavLink to="/admin/dashboard" end className={({ isActive }) => isActive ? 'active' : ''}>
+            <span className="nav-icon">&#9632;</span>
+            <span>Dashboard</span>
+          </NavLink>
+          <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'active' : ''}>
+            <span className="nav-icon">&#9783;</span>
+            <span>Users</span>
+          </NavLink>
+          <NavLink to="/admin/projects" className={({ isActive }) => isActive ? 'active' : ''}>
+            <span className="nav-icon">&#9776;</span>
+            <span>Projects</span>
+          </NavLink>
+          <NavLink to="/admin/skills" className={({ isActive }) => isActive ? 'active' : ''}>
+            <span className="nav-icon">&#9733;</span>
+            <span>Skills</span>
+          </NavLink>
+        </nav>
+        <div className="admin-sidebar-footer">
+          <a href="/" onClick={(e) => { e.preventDefault(); window.location.href = '/'; }}>
+            <span className="nav-icon">&#8592;</span>
+            <span>Back to App</span>
+          </a>
+          <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>
+            <span className="nav-icon">&#9094;</span>
+            <span>Sign Out</span>
+          </a>
+        </div>
+      </aside>
+      <main className="admin-main">
+        <Outlet context={admin} />
+      </main>
+    </div>
+  );
+}

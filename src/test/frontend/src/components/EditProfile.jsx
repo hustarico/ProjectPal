@@ -93,26 +93,30 @@ export default function EditProfile() {
           <h1>Edit Profile</h1>
           <p>Update your personal information</p>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/profile')}>
-          Cancel
-        </button>
+        <div className="page-header-actions">
+          <button className="btn btn-secondary btn-sm" onClick={() => navigate('/profile')}>
+            Cancel
+          </button>
+        </div>
       </div>
 
-      {message && <div className="success-message">{message}</div>}
-      {error && <div className="error-message">{error}</div>}
+      {message && <div className="success-message">{message}<button className="message-dismiss" onClick={() => setMessage('')}>&times;</button></div>}
+      {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
 
       <div className="two-col">
         <div>
           <div className="card">
             <div className="card-header"><h2>Profile Info</h2></div>
             <form onSubmit={handleProfileSubmit}>
-              <div className="form-group">
-                <label>First Name</label>
-                <input value={form.firstName} onChange={handleChange('firstName')} />
-              </div>
-              <div className="form-group">
-                <label>Last Name</label>
-                <input value={form.lastName} onChange={handleChange('lastName')} />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>First Name</label>
+                  <input value={form.firstName} onChange={handleChange('firstName')} />
+                </div>
+                <div className="form-group">
+                  <label>Last Name</label>
+                  <input value={form.lastName} onChange={handleChange('lastName')} />
+                </div>
               </div>
               <div className="form-group">
                 <label>Bio</label>
@@ -120,6 +124,7 @@ export default function EditProfile() {
                   value={form.bio}
                   onChange={handleChange('bio')}
                   placeholder="Tell us about yourself..."
+                  rows={4}
                 />
               </div>
               <div className="form-group">
@@ -140,9 +145,7 @@ export default function EditProfile() {
                   accept="image/jpeg,image/png,image/gif,image/webp"
                   onChange={e => setProfilePicFile(e.target.files[0])}
                 />
-                <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 4 }}>
-                  Max 5 MB. JPEG, PNG, GIF, or WebP.
-                </p>
+                <p className="form-hint">Max 5 MB. JPEG, PNG, GIF, or WebP.</p>
               </div>
               <button type="submit" className="btn btn-primary" disabled={saving}>
                 {saving ? 'Saving...' : 'Save Changes'}

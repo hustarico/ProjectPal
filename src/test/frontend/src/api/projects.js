@@ -23,3 +23,15 @@ export const getProjectMembers = (projectId) =>
 
 export const updateMemberRole = (projectId, userId, memberRole) =>
   api.patch(`/api/projects/${projectId}/members/${userId}/role`, { memberRole });
+
+export const completeProject = (projectId) =>
+  api.post(`/api/projects/${projectId}/complete`);
+
+export const removeMember = (projectId, userId) =>
+  api.delete(`/api/projects/${projectId}/members/${userId}`);
+
+export const leaveProject = (projectId) =>
+  api.post(`/api/projects/${projectId}/leave`);
+
+export const getPastProjects = () =>
+  api.get('/api/projects/past');

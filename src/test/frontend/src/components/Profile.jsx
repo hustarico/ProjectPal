@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import * as usersApi from '../api/users';
 import * as skillsApi from '../api/skills';
+import * as projectsApi from '../api/projects';
 
 export default function Profile() {
   const { user, refreshUser } = useContext(AuthContext);
@@ -12,12 +13,16 @@ export default function Profile() {
   const [selectedLevel, setSelectedLevel] = useState('BEGINNER');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [pastProjects, setPastProjects] = useState([]);
 
   useEffect(() => {
     skillsApi.listSkills()
       .then(res => setAllSkills(
         (res.data || []).slice().sort((a, b) => a.name.localeCompare(b.name))
       ))
+      .catch(() => {});
+    projectsApi.getPastProjects()
+      .then(res => setPastProjects(res.data))
       .catch(() => {});
   }, []);
 
@@ -54,23 +59,15 @@ export default function Profile() {
     }
   };
 
-  const levelBadgeColor = (level) => {
-    switch (level) {
-      case 'BEGINNER': return '#dbeafe';
-      case 'INTERMEDIATE': return '#fef3c7';
-      case 'ADVANCED': return '#dcfce7';
-      case 'PROFESSIONAL': return '#f3e8ff';
-      default: return '#f1f5f9';
-    }
-  };
-
   return (
     <div>
       <div className="page-header">
         <h1>Profile</h1>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate('/profile/edit')}>
-          Edit Profile
-        </button>
+        <div className="page-header-actions">
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/profile/edit')}>
+            Edit Profile
+          </button>
+        </div>
       </div>
 
       <div className="profile-header">
@@ -79,14 +76,21 @@ export default function Profile() {
         </div>
         <div className="profile-info">
           <h2>{user?.firstName} {user?.lastName}</h2>
-          <p>{user?.email}</p>
-          <p>{user?.bio || 'No bio yet'}</p>
-          <p style={{ marginTop: 4 }}>
-            Availability: <strong>{user?.availabilityStatus || 'AVAILABLE'}</strong>
+          <p className="profile-email">{user?.email}</p>
+          <p className="profile-bio">{user?.bio || 'No bio yet'}</p>
+          <div className="profile-meta">
+            <span className={`status-badge ${user?.availabilityStatus?.toLowerCase() || 'available'}`}>
+              {user?.availabilityStatus || 'AVAILABLE'}
+            </span>
             {user?.averageRating != null && (
-              <span style={{ marginLeft: 16 }}>Rating: ⭐ {user.averageRating.toFixed(1)}</span>
+              <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706' }}>
+                {'\u2B50'} {user.averageRating.toFixed(1)}
+              </span>
             )}
-          </p>
+            <span className="status-badge" style={{ background: 'var(--primary-light)', color: 'var(--primary-text-on-light)' }}>
+              {user?.role}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -98,44 +102,47 @@ export default function Profile() {
           {userSkills.length > 0 ? (
             <div className="skills-list">
               {userSkills.map(skill => (
-                <span key={skill.id} className="skill-tag" style={{ background: levelBadgeColor(skill.experienceLevel) }}>
+                <span key={skill.id} className="skill-tag">
                   {skill.skillName} ({skill.experienceLevel})
                   <button className="remove-skill" onClick={() => handleRemoveSkill(skill.skillId)}>
-                    ×
+                    &times;
                   </button>
                 </span>
               ))}
             </div>
           ) : (
-            <p style={{ color: '#64748b', fontSize: 14 }}>No skills added yet.</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>No skills added yet.</p>
           )}
 
-          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {message && <div className="success-message">{message}</div>}
-            {error && <div className="error-message">{error}</div>}
-            <div style={{ display: 'flex', gap: 8 }}>
-              <select
-                value={selectedSkill}
-                onChange={e => setSelectedSkill(e.target.value)}
-                style={{ flex: 1 }}
-              >
-                <option value="">Select skill...</option>
-                {allSkills
-                  .filter(s => !userSkills.some(us => us.skillId === s.id))
-                  .map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))
-                }
-              </select>
-              <select
-                value={selectedLevel}
-                onChange={e => setSelectedLevel(e.target.value)}
-              >
-                <option value="BEGINNER">Beginner</option>
-                <option value="INTERMEDIATE">Intermediate</option>
-                <option value="ADVANCED">Advanced</option>
-                <option value="PROFESSIONAL">Professional</option>
-              </select>
+          <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid var(--border-light)' }}>
+            {message && <div className="success-message">{message}<button className="message-dismiss" onClick={() => setMessage('')}>&times;</button></div>}
+            {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
+            <div className="form-row">
+              <div className="form-group">
+                <select
+                  value={selectedSkill}
+                  onChange={e => setSelectedSkill(e.target.value)}
+                >
+                  <option value="">Select skill...</option>
+                  {allSkills
+                    .filter(s => !userSkills.some(us => us.skillId === s.id))
+                    .map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))
+                  }
+                </select>
+              </div>
+              <div className="form-group" style={{ flex: '0 0 auto', width: 140 }}>
+                <select
+                  value={selectedLevel}
+                  onChange={e => setSelectedLevel(e.target.value)}
+                >
+                  <option value="BEGINNER">Beginner</option>
+                  <option value="INTERMEDIATE">Intermediate</option>
+                  <option value="ADVANCED">Advanced</option>
+                  <option value="PROFESSIONAL">Professional</option>
+                </select>
+              </div>
               <button className="btn btn-primary btn-sm" onClick={handleAddSkill}>
                 Add
               </button>
@@ -147,18 +154,43 @@ export default function Profile() {
           <div className="card-header">
             <h2>Account</h2>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p style={{ fontSize: 14, color: '#64748b' }}>
-              Role: <strong>{user?.role}</strong>
-            </p>
-            <p style={{ fontSize: 14, color: '#64748b' }}>
-              Member since: <strong>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</strong>
-            </p>
-            <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Role</span>
+              <p style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>{user?.role}</p>
+            </div>
+            <div>
+              <span style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>Member since</span>
+              <p style={{ fontSize: 14, fontWeight: 600, marginTop: 2 }}>{user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+            </div>
+            <div style={{ marginTop: 8 }}>
               <Link to="/profile/edit" className="btn btn-secondary btn-sm">Edit Profile</Link>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="card-header">
+          <h2>Past Projects ({pastProjects.length})</h2>
+        </div>
+        {pastProjects.length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>No past projects yet. Completed or left projects will appear here.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {pastProjects.map(p => (
+              <div key={p.id} className="search-result-item clickable" onClick={() => navigate(`/projects/${p.id}`)}>
+                <div className="result-info">
+                  <h4>{p.name}</h4>
+                  <p>Your role: {p.role}</p>
+                </div>
+                <span className={`status-badge ${p.status === 'COMPLETED' ? 'completed' : p.status === 'IN_PROGRESS' ? 'in_progress' : 'open'}`}>
+                  {p.status?.replace('_', ' ')}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

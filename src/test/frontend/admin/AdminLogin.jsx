@@ -1,15 +1,19 @@
-import { useState, useContext } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
-  const { user, login } = useContext(AuthContext);
+export default function AdminLogin() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (user) return <Navigate to="/" replace />;
+  useEffect(() => {
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,9 +24,35 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      await login(email, password);
+      const res = await fetch('http://localhost:8080/api/auth/authenticate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Invalid email or password.');
+      }
+      const data = await res.json();
+      const token = data.token;
+
+      const profileRes = await fetch('http://localhost:8080/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!profileRes.ok) throw new Error('Failed to verify admin status.');
+      const profile = await profileRes.json();
+
+      if (profile.role !== 'ADMIN') {
+        setError('Access denied. Admin privileges required.');
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem('admin_token', token);
+      localStorage.setItem('admin_user', JSON.stringify(profile));
+      navigate('/admin/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      setError(err.message || 'Login failed.');
     } finally {
       setLoading(false);
     }
@@ -35,8 +65,8 @@ export default function Login() {
           <div className="auth-logo-icon">P</div>
           <span className="auth-logo-text">ProjectPal</span>
         </div>
-        <h1>Welcome back</h1>
-        <p className="auth-subtitle">Sign in to your account to continue</p>
+        <h1>Admin Panel</h1>
+        <p className="auth-subtitle">Sign in with an admin account</p>
         {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -45,7 +75,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              placeholder="admin@example.com"
               autoComplete="email"
             />
           </div>
@@ -63,12 +93,6 @@ export default function Login() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-        <div className="auth-footer">
-          <Link to="/forgot-password">Forgot password?</Link>
-        </div>
-        <div className="auth-footer">
-          Don&apos;t have an account? <Link to="/register">Create one</Link>
-        </div>
       </div>
     </div>
   );

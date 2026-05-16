@@ -17,4 +17,7 @@ public interface ProjectService {
     List<ProjectResponse> browseAvailableProjects(User currentUser);
     List<ProjectMemberResponse> getProjectMembers(Integer projectId, User currentUser);
     List<ProjectMemberResponse> updateMemberRole(Integer projectId, Integer userId, MemberRole memberRole, User currentUser);
+    void markProjectCompleted(Integer projectId, User currentUser);
+    List<ProjectMemberResponse> removeMember(Integer projectId, Integer userId, User currentUser);
+    void leaveProject(Integer projectId, User currentUser);
 }

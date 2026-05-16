@@ -9,3 +9,6 @@ export const sendMessage = (projectId, content) =>
 
 export const getMessageHistory = (projectId) =>
   api.get(`/api/messages/project/${projectId}`);
+
+export const deleteMessage = (messageId) =>
+  api.delete(`/api/messages/${messageId}`);

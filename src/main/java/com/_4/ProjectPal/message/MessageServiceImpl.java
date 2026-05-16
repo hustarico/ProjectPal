@@ -1,5 +1,6 @@
 package com._4.ProjectPal.message;
 
+import com._4.ProjectPal.message.dto.MessageDeletedEvent;
 import com._4.ProjectPal.message.dto.MessageResponse;
 import com._4.ProjectPal.message.dto.SendMessageRequest;
 import com._4.ProjectPal.project.Project;
@@ -64,6 +65,21 @@ public class MessageServiceImpl implements MessageService {
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public MessageDeletedEvent deleteMessage(Integer messageId, User currentUser) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Message not found"));
+
+        if (!message.getSender().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "You can only delete your own messages");
+        }
+
+        Integer projectId = message.getProject().getId();
+        messageRepository.delete(message);
+
+        return new MessageDeletedEvent(messageId, projectId);
     }
 
     private MessageResponse toResponse(Message message) {

@@ -48,25 +48,31 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">P</div>
+          <span className="auth-logo-text">ProjectPal</span>
+        </div>
         <h1>Create account</h1>
-        <p className="subtitle">Join ProjectPal and start collaborating</p>
-        {error && <div className="error-message">{error}</div>}
+        <p className="auth-subtitle">Join ProjectPal and start collaborating</p>
+        {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>First Name</label>
-            <input
-              value={form.firstName}
-              onChange={handleChange('firstName')}
-              placeholder="John"
-            />
-          </div>
-          <div className="form-group">
-            <label>Last Name</label>
-            <input
-              value={form.lastName}
-              onChange={handleChange('lastName')}
-              placeholder="Doe"
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>First Name</label>
+              <input
+                value={form.firstName}
+                onChange={handleChange('firstName')}
+                placeholder="John"
+              />
+            </div>
+            <div className="form-group">
+              <label>Last Name</label>
+              <input
+                value={form.lastName}
+                onChange={handleChange('lastName')}
+                placeholder="Doe"
+              />
+            </div>
           </div>
           <div className="form-group">
             <label>Email</label>
@@ -98,11 +104,11 @@ export default function Register() {
               autoComplete="new-password"
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
-        <div className="form-footer">
+        <div className="auth-footer">
           Already have an account? <Link to="/login">Sign in</Link>
         </div>
       </div>

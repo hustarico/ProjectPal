@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,4 +32,6 @@ public class ProjectMember {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberRole memberRole;
+
+    private LocalDateTime finishedAt;
 }

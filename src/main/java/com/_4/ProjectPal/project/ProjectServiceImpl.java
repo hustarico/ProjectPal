@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -177,6 +178,77 @@ public class ProjectServiceImpl implements ProjectService {
                         .memberRole(pm.getMemberRole())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void markProjectCompleted(Integer projectId, User currentUser) {
+        Project project = projectRepository.findById(projectId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
+
+        if (!project.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "You are not the owner of this project");
+        }
+
+        project.setStatus(ProjectStatus.COMPLETED);
+        projectRepository.save(project);
+
+        List<ProjectMember> members = projectMemberRepository.findByProject(project);
+        LocalDateTime now = LocalDateTime.now();
+        for (ProjectMember member : members) {
+            member.setFinishedAt(now);
+        }
+        projectMemberRepository.saveAll(members);
+    }
+
+    @Override
+    public List<ProjectMemberResponse> removeMember(Integer projectId, Integer userId, User currentUser) {
+        Project project = projectRepository.findById(projectId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
+
+        if (!project.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(FORBIDDEN, "Only the project owner can remove members");
+        }
+
+        if (project.getOwner().getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot remove the project owner");
+        }
+
+        if (currentUser.getId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Use the leave endpoint to leave a project");
+        }
+
+        User targetUser = projectMemberRepository.findByProject(project).stream()
+                .filter(pm -> pm.getUser().getId().equals(userId))
+                .map(ProjectMember::getUser)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User is not a member of this project"));
+
+        ProjectMember member = projectMemberRepository.findByProjectAndUser(project, targetUser)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "User is not a member of this project"));
+
+        projectMemberRepository.delete(member);
+
+        return getProjectMembers(projectId, currentUser);
+    }
+
+    @Override
+    public void leaveProject(Integer projectId, User currentUser) {
+        Project project = projectRepository.findById(projectId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Project not found"));
+
+        if (project.getOwner().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Project owner cannot leave. Delete or transfer the project first");
+        }
+
+        ProjectMember membership = projectMemberRepository.findByProjectAndUser(project, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "You are not a member of this project"));
+
+        membership.setFinishedAt(LocalDateTime.now());
+        projectMemberRepository.save(membership);
+        projectMemberRepository.delete(membership);
     }
 
     private ProjectResponse toResponse(Project project) {

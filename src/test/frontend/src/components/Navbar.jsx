@@ -46,6 +46,7 @@ export default function Navbar() {
         <NavLink to="/browse">Browse</NavLink>
         <NavLink to="/projects/new">New Project</NavLink>
         <NavLink to="/search">Search</NavLink>
+        <NavLink to="/past-projects">Past Projects</NavLink>
       </div>
       <div className="navbar-right">
         <button className="btn-icon theme-toggle" onClick={toggle} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>

@@ -34,9 +34,13 @@ export default function ResetPassword() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">P</div>
+          <span className="auth-logo-text">ProjectPal</span>
+        </div>
         <h1>Reset Password</h1>
-        <p className="subtitle">Enter the reset token and your new password</p>
-        {error && <div className="error-message">{error}</div>}
+        <p className="auth-subtitle">Enter the reset token and your new password</p>
+        {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Reset Token</label>
@@ -56,11 +60,11 @@ export default function ResetPassword() {
               autoComplete="new-password"
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
             {loading ? 'Resetting...' : 'Reset Password'}
           </button>
         </form>
-        <div className="form-footer">
+        <div className="auth-footer">
           <Link to="/login">Back to login</Link>
         </div>
       </div>

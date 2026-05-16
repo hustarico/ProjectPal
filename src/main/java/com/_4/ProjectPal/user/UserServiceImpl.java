@@ -188,8 +188,7 @@ public class UserServiceImpl implements UserService {
                 .map(this::toUserSkillResponse)
                 .collect(Collectors.toList());
 
-        List<PastProjectResponse> pastProjects = projectMemberRepository.findByUser(user).stream()
-                .filter(pm -> !pm.getProject().getIsDeleted())
+        List<PastProjectResponse> pastProjects = projectMemberRepository.findByUserAndFinishedAtIsNotNull(user).stream()
                 .map(pm -> PastProjectResponse.builder()
                         .id(pm.getProject().getId())
                         .name(pm.getProject().getName())

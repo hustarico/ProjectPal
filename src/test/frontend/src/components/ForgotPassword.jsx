@@ -30,17 +30,24 @@ export default function ForgotPassword() {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        <div className="auth-logo">
+          <div className="auth-logo-icon">P</div>
+          <span className="auth-logo-text">ProjectPal</span>
+        </div>
         <h1>Forgot Password</h1>
-        <p className="subtitle">Enter your email to receive a reset token</p>
-        {error && <div className="error-message">{error}</div>}
+        <p className="auth-subtitle">Enter your email to receive a reset token</p>
+        {error && <div className="error-message">{error}<button className="message-dismiss" onClick={() => setError('')}>&times;</button></div>}
         {success && (
           <div className="success-message">
-            <p>{success.message}</p>
-            {success.resetToken && (
-              <p style={{ marginTop: 8, wordBreak: 'break-all' }}>
-                Token: <strong>{success.resetToken}</strong>
-              </p>
-            )}
+            <div>
+              <p>{success.message}</p>
+              {success.resetToken && (
+                <p style={{ marginTop: 8, wordBreak: 'break-all' }}>
+                  Token: <strong>{success.resetToken}</strong>
+                </p>
+              )}
+            </div>
+            <button className="message-dismiss" onClick={() => setSuccess(null)}>&times;</button>
           </div>
         )}
         <form onSubmit={handleSubmit}>
@@ -53,14 +60,14 @@ export default function ForgotPassword() {
               placeholder="you@example.com"
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={loading}>
             {loading ? 'Sending...' : 'Send Reset Token'}
           </button>
         </form>
-        <div className="form-footer">
+        <div className="auth-footer">
           <Link to="/login">Back to login</Link>
         </div>
-        <div className="form-footer">
+        <div className="auth-footer">
           Have a token? <Link to="/reset-password">Reset password</Link>
         </div>
       </div>
