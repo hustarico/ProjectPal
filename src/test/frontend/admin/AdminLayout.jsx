@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import '../src/styles.css';
 import './admin.css';
 
 export default function AdminLayout() {
@@ -49,12 +50,19 @@ export default function AdminLayout() {
     return <div className="loading-screen"><div className="loading-spinner"></div>Loading...</div>;
   }
 
+  const initials = admin
+    ? `${admin.firstName?.[0] || ''}${admin.lastName?.[0] || ''}`.toUpperCase()
+    : '?';
+
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <h1>ProjectPal</h1>
-          <p>Admin Panel</p>
+          <div className="sidebar-logo">P</div>
+          <div>
+            <h1>ProjectPal</h1>
+            <p>Admin Panel</p>
+          </div>
         </div>
         <nav className="admin-sidebar-nav">
           <NavLink to="/admin/dashboard" end className={({ isActive }) => isActive ? 'active' : ''}>

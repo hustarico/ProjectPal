@@ -8,4 +8,5 @@ import java.util.List;
 public interface SkillService {
     List<SkillResponse> getAllSkills();
     SkillResponse createSkill(CreateSkillRequest request);
+    void deleteSkill(Integer id);
 }

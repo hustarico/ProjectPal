@@ -47,6 +47,17 @@ public class SkillController {
         return skillService.createSkill(request);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSkill(@PathVariable Integer id,
+                            Authentication authentication) {
+        User currentUser = currentUser(authentication);
+        if (currentUser.getRole() != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only admins can delete skills");
+        }
+        skillService.deleteSkill(id);
+    }
+
     @PostMapping("/user")
     @ResponseStatus(HttpStatus.CREATED)
     public UserSkillResponse addSkillToUser(@Validated @RequestBody AddUserSkillRequest request,

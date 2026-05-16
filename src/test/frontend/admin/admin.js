@@ -17,3 +17,6 @@ export const getAdminProjects = () =>
 
 export const toggleProjectStatus = (projectId) =>
   api.patch(`/api/admin/projects/${projectId}/status`);
+
+export const deleteSkill = (skillId) =>
+  api.delete(`/api/skills/${skillId}`);

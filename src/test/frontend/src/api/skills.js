@@ -12,5 +12,8 @@ export const addSkillToSelf = (skillId, experienceLevel) =>
 export const removeSkillFromSelf = (skillId) =>
   api.delete(`/api/skills/user/${skillId}`);
 
+export const deleteSkill = (skillId) =>
+  api.delete(`/api/skills/${skillId}`);
+
 export const getUserSkills = (userId) =>
   api.get(`/api/skills/user/${userId}`);

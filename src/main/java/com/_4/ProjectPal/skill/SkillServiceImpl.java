@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,14 @@ public class SkillServiceImpl implements SkillService {
 
         Skill saved = skillRepository.save(skill);
         return toSkillResponse(saved);
+    }
+
+    @Override
+    public void deleteSkill(Integer id) {
+        if (!skillRepository.existsById(id)) {
+            throw new ResponseStatusException(NOT_FOUND, "Skill not found");
+        }
+        skillRepository.deleteById(id);
     }
 
     private SkillResponse toSkillResponse(Skill skill) {
