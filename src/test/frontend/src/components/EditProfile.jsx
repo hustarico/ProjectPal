@@ -134,8 +134,7 @@ export default function EditProfile() {
                   onChange={handleChange('availabilityStatus')}
                 >
                   <option value="AVAILABLE">Available</option>
-                  <option value="BUSY">Busy</option>
-                  <option value="UNAVAILABLE">Unavailable</option>
+                  <option value="AWAY">Away</option>
                 </select>
               </div>
               <div className="form-group">

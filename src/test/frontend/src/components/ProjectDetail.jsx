@@ -6,6 +6,7 @@ import * as tasksApi from '../api/tasks';
 import * as invitationsApi from '../api/invitations';
 import * as searchApi from '../api/search';
 import Chat from './Chat';
+import { IconPlus, IconClipboard } from './Icons';
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -282,7 +283,7 @@ function TasksTab({ canManage, members, tasks, todoTasks, inProgressTasks, doneT
       {tasks.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">&#128203;</div>
+            <div className="empty-state-icon"><IconClipboard /></div>
             <p>No tasks yet. {canManage ? 'Create one above to get started.' : ''}</p>
           </div>
         </div>
@@ -458,7 +459,7 @@ function MembersTab({ projectId, members, isOwner, currentUserId, onMembersChang
           <h2>Project Members ({members.length})</h2>
           {isOwner && (
             <button className="btn btn-primary btn-sm" onClick={() => setInviteModal(true)}>
-              &#43; Invite People
+              <IconPlus size={14} /> Invite People
             </button>
           )}
         </div>

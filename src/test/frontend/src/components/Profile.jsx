@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import * as usersApi from '../api/users';
 import * as skillsApi from '../api/skills';
 import * as projectsApi from '../api/projects';
+import { IconStarFilled } from './Icons';
 
 export default function Profile() {
   const { user, refreshUser } = useContext(AuthContext);
@@ -83,8 +84,8 @@ export default function Profile() {
               {user?.availabilityStatus || 'AVAILABLE'}
             </span>
             {user?.averageRating != null && (
-              <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706' }}>
-                {'\u2B50'} {user.averageRating.toFixed(1)}
+              <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <IconStarFilled size={12} /> {user.averageRating.toFixed(1)}
               </span>
             )}
             <span className="status-badge" style={{ background: 'var(--primary-light)', color: 'var(--primary-text-on-light)' }}>

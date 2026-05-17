@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import '../src/styles.css';
 import './admin.css';
+import { IconDashboard, IconUsers, IconFolder, IconStar, IconArrowLeft, IconLogout } from '../src/components/Icons';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -66,29 +67,29 @@ export default function AdminLayout() {
         </div>
         <nav className="admin-sidebar-nav">
           <NavLink to="/admin/dashboard" end className={({ isActive }) => isActive ? 'active' : ''}>
-            <span className="nav-icon">&#9632;</span>
+            <span className="nav-icon"><IconDashboard /></span>
             <span>Dashboard</span>
           </NavLink>
           <NavLink to="/admin/users" className={({ isActive }) => isActive ? 'active' : ''}>
-            <span className="nav-icon">&#9783;</span>
+            <span className="nav-icon"><IconUsers /></span>
             <span>Users</span>
           </NavLink>
           <NavLink to="/admin/projects" className={({ isActive }) => isActive ? 'active' : ''}>
-            <span className="nav-icon">&#9776;</span>
+            <span className="nav-icon"><IconFolder /></span>
             <span>Projects</span>
           </NavLink>
           <NavLink to="/admin/skills" className={({ isActive }) => isActive ? 'active' : ''}>
-            <span className="nav-icon">&#9733;</span>
+            <span className="nav-icon"><IconStar /></span>
             <span>Skills</span>
           </NavLink>
         </nav>
         <div className="admin-sidebar-footer">
           <a href="/" onClick={(e) => { e.preventDefault(); window.location.href = '/'; }}>
-            <span className="nav-icon">&#8592;</span>
+            <span className="nav-icon"><IconArrowLeft /></span>
             <span>Back to App</span>
           </a>
           <a href="#" onClick={(e) => { e.preventDefault(); handleLogout(); }}>
-            <span className="nav-icon">&#9094;</span>
+            <span className="nav-icon"><IconLogout /></span>
             <span>Sign Out</span>
           </a>
         </div>

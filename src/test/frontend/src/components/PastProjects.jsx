@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as projectsApi from '../api/projects';
+import { IconFileText } from './Icons';
 
 export default function PastProjects() {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ export default function PastProjects() {
       {projects.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">&#128196;</div>
+            <div className="empty-state-icon"><IconFileText /></div>
             <p>No past projects yet. Completed or left projects will appear here.</p>
           </div>
         </div>

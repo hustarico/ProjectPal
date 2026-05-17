@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as searchApi from '../api/search';
 import * as skillsApi from '../api/skills';
+import { IconSearch } from './Icons';
 
 export default function Search() {
   const navigate = useNavigate();
@@ -140,7 +141,7 @@ export default function Search() {
           {results.length === 0 ? (
             <div className="card">
               <div className="empty-state">
-                <div className="empty-state-icon">&#128269;</div>
+                <div className="empty-state-icon"><IconSearch /></div>
                 <p>No results found.</p>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as projectsApi from '../api/projects';
 import * as invitationsApi from '../api/invitations';
+import { IconPlus, IconFileText } from './Icons';
 
 export default function BrowseProjects() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function BrowseProjects() {
         </div>
         <div className="page-header-actions">
           <button className="btn btn-primary" onClick={() => navigate('/projects/new')}>
-            &#43; Create Project
+            <IconPlus size={16} /> Create Project
           </button>
         </div>
       </div>
@@ -61,7 +62,7 @@ export default function BrowseProjects() {
       {projects.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">&#128196;</div>
+            <div className="empty-state-icon"><IconFileText /></div>
             <p>No open projects available right now.</p>
           </div>
         </div>

@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as notificationsApi from '../api/notifications';
+import { IconBell, IconMail, IconClipboard, IconClock, IconDoor, IconCheck, IconX as IconXMark, IconSend } from './Icons';
 
 const TYPE_ICONS = {
-  PROJECT_INVITATION: '\u{1F4E8}',
-  TASK_ASSIGNED: '\u{1F4CB}',
-  DEADLINE_REMINDER: '\u23F0',
-  JOIN_REQUEST: '\u{1F6AA}',
-  JOIN_APPROVED: '\u2705',
-  JOIN_REJECTED: '\u274C',
-  NEW_MESSAGE: '\u{1F4AC}'
+  PROJECT_INVITATION: <IconMail size={18} />,
+  TASK_ASSIGNED: <IconClipboard size={18} />,
+  DEADLINE_REMINDER: <IconClock size={18} />,
+  JOIN_REQUEST: <IconDoor size={18} />,
+  JOIN_APPROVED: <IconCheck size={18} />,
+  JOIN_REJECTED: <IconXMark size={18} />,
+  NEW_MESSAGE: <IconSend size={18} />
 };
 
 export default function Notifications() {
@@ -70,7 +71,7 @@ export default function Notifications() {
       {notifications.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">&#128276;</div>
+            <div className="empty-state-icon"><IconBell /></div>
             <p>No notifications yet. You&apos;ll see updates about your projects here.</p>
           </div>
         </div>
@@ -83,7 +84,7 @@ export default function Notifications() {
               onClick={() => n.projectId && navigate(`/projects/${n.projectId}`)}
             >
               <div className="notification-icon">
-                {TYPE_ICONS[n.type] || '\u{1F514}'}
+                {TYPE_ICONS[n.type] || <IconBell size={18} />}
               </div>
               <div className="notification-content">
                 <p>{n.message}</p>

@@ -184,9 +184,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserProfileResponse toProfileResponse(User user) {
-        List<UserSkillResponse> skills = user.getUserSkills().stream()
-                .map(this::toUserSkillResponse)
-                .collect(Collectors.toList());
+        List<UserSkillResponse> skills = user.getUserSkills() != null
+                ? user.getUserSkills().stream()
+                        .map(this::toUserSkillResponse)
+                        .collect(Collectors.toList())
+                : List.of();
 
         List<PastProjectResponse> pastProjects = projectMemberRepository.findByUserAndFinishedAtIsNotNull(user).stream()
                 .map(pm -> PastProjectResponse.builder()

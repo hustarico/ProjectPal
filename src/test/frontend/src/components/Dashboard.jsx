@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import * as projectsApi from '../api/projects';
 import * as notificationsApi from '../api/notifications';
 import * as invitationsApi from '../api/invitations';
+import { IconPlus, IconFileText, IconBell } from './Icons';
 
 export default function Dashboard() {
   const { user, refreshUser } = useContext(AuthContext);
@@ -75,7 +76,7 @@ export default function Dashboard() {
         </div>
         <div className="page-header-actions">
           <button className="btn btn-primary" onClick={() => navigate('/projects/new')}>
-            &#43; New Project
+            <IconPlus size={16} /> New Project
           </button>
         </div>
       </div>
@@ -132,12 +133,12 @@ export default function Dashboard() {
             <div className="card-header">
               <h2>My Projects</h2>
               <button className="btn btn-sm btn-primary" onClick={() => navigate('/projects/new')}>
-                &#43; New
+                <IconPlus size={14} /> New
               </button>
             </div>
             {projects.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">&#128196;</div>
+                <div className="empty-state-icon"><IconFileText /></div>
                 <p>No projects yet. Create your first project!</p>
               </div>
             ) : (
@@ -174,7 +175,7 @@ export default function Dashboard() {
             </div>
             {notifications.length === 0 ? (
               <div className="empty-state">
-                <div className="empty-state-icon">&#128276;</div>
+                <div className="empty-state-icon"><IconBell /></div>
                 <p>No notifications yet.</p>
               </div>
             ) : (

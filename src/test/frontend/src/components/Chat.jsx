@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import * as messagesApi from '../api/messages';
 import { Client } from '@stomp/stompjs';
+import { IconMessageSquare, IconX } from './Icons';
 
 export default function Chat({ projectId }) {
   const { user } = useContext(AuthContext);
@@ -140,7 +141,7 @@ export default function Chat({ projectId }) {
         <div className="chat-messages">
           {messages.length === 0 && (
             <div className="empty-state">
-              <div className="empty-state-icon">&#128172;</div>
+              <div className="empty-state-icon"><IconMessageSquare /></div>
               <p>No messages yet. Start the conversation!</p>
             </div>
           )}
@@ -161,7 +162,7 @@ export default function Chat({ projectId }) {
                     onClick={() => handleDeleteMessage(msg.id)}
                     title="Delete message"
                   >
-                    &times;
+                    <IconX size={14} />
                   </button>
                 )}
               </div>

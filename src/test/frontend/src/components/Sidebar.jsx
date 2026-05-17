@@ -3,6 +3,17 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import * as notificationsApi from '../api/notifications';
+import {
+  IconDashboard,
+  IconBrowse,
+  IconPlus,
+  IconSearch,
+  IconClock,
+  IconBell,
+  IconSun,
+  IconMoon,
+  IconLogout
+} from './Icons';
 
 export default function Sidebar() {
   const { user, logout } = useContext(AuthContext);
@@ -45,27 +56,27 @@ export default function Sidebar() {
 
       <nav className="sidebar-nav">
         <NavLink to="/" end className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#9632;</span>
+          <span className="sidebar-nav-icon"><IconDashboard /></span>
           <span className="sidebar-nav-label">Dashboard</span>
         </NavLink>
         <NavLink to="/browse" className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#9776;</span>
+          <span className="sidebar-nav-icon"><IconBrowse /></span>
           <span className="sidebar-nav-label">Browse</span>
         </NavLink>
         <NavLink to="/projects/new" className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#43;</span>
+          <span className="sidebar-nav-icon"><IconPlus /></span>
           <span className="sidebar-nav-label">New Project</span>
         </NavLink>
         <NavLink to="/search" className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#128269;</span>
+          <span className="sidebar-nav-icon"><IconSearch /></span>
           <span className="sidebar-nav-label">Search</span>
         </NavLink>
         <NavLink to="/past-projects" className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#9203;</span>
+          <span className="sidebar-nav-icon"><IconClock /></span>
           <span className="sidebar-nav-label">Past Projects</span>
         </NavLink>
         <NavLink to="/notifications" className="sidebar-nav-item">
-          <span className="sidebar-nav-icon">&#128276;</span>
+          <span className="sidebar-nav-icon"><IconBell /></span>
           <span className="sidebar-nav-label">Notifications</span>
           {notifCount > 0 && <span className="sidebar-nav-badge">{notifCount > 9 ? '9+' : notifCount}</span>}
         </NavLink>
@@ -83,10 +94,10 @@ export default function Sidebar() {
         </Link>
         <div className="sidebar-actions">
           <button className="sidebar-action-btn" onClick={toggle} title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}>
-            {theme === 'light' ? '&#9790;' : '&#9788;'}
+            {theme === 'light' ? <IconMoon /> : <IconSun />}
           </button>
           <button className="sidebar-action-btn" onClick={handleLogout} title="Logout">
-            &#9094;
+            <IconLogout />
           </button>
         </div>
       </div>

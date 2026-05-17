@@ -36,14 +36,14 @@ public class UserController {
         return userService.getProfile(id);
     }
 
-    @PutMapping("/me")
+    @RequestMapping(value = "/me", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public UserProfileResponse updateProfile(Authentication authentication,
                                                @RequestBody UpdateProfileRequest request) {
         User user = getCurrentUser(authentication);
         return userService.updateProfile(user.getId(), request);
     }
 
-    @PutMapping("/me/password")
+    @RequestMapping(value = "/me/password", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public void changePassword(Authentication authentication,
                                 @RequestBody ChangePasswordRequest request) {
         User user = getCurrentUser(authentication);

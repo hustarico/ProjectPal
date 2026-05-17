@@ -826,6 +826,7 @@ img {
 .status-badge {
   display: inline-flex;
   align-items: center;
+  text-align: center;
   padding: 3px 10px;
   border-radius: var(--radius-full);
   font-size: 12px;
@@ -1363,9 +1364,19 @@ img {
 }
 
 .empty-state-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+}
+
+.empty-state-icon svg {
+  opacity: 0.4;
 }
 
 .empty-state p {

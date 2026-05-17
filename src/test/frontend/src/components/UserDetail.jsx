@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import * as usersApi from '../api/users';
 import * as ratingsApi from '../api/ratings';
+import { IconStarFilled, IconArrowLeft } from './Icons';
 
 export default function UserDetail() {
   const { userId } = useParams();
@@ -46,7 +47,7 @@ export default function UserDetail() {
         </div>
         <div className="page-header-actions">
           <button className="btn btn-secondary btn-sm" onClick={() => navigate(-1)}>
-            &larr; Back
+            <IconArrowLeft size={14} /> Back
           </button>
         </div>
       </div>
@@ -64,8 +65,8 @@ export default function UserDetail() {
               {profile.availabilityStatus || 'AVAILABLE'}
             </span>
             {profile.averageRating != null && (
-              <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706' }}>
-                {'\u2B50'} {profile.averageRating.toFixed(1)}
+              <span className="status-badge" style={{ background: '#fef3c7', color: '#d97706', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <IconStarFilled size={12} /> {profile.averageRating.toFixed(1)}
               </span>
             )}
             <span className="status-badge" style={{ background: 'var(--primary-light)', color: 'var(--primary-text-on-light)' }}>
@@ -138,7 +139,9 @@ export default function UserDetail() {
                   >
                     <div className="result-info">
                       <h4>From: {r.raterName}</h4>
-                      <p>{'\u2B50'.repeat(r.score)} ({r.score}/5)</p>
+                      <p style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        {Array.from({ length: r.score }).map((_, i) => <IconStarFilled key={i} size={14} />)} ({r.score}/5)
+                      </p>
                     </div>
                   </div>
                 ))}
