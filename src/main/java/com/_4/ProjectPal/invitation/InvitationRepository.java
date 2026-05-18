@@ -11,4 +11,5 @@ public interface InvitationRepository extends JpaRepository<Invitation, Integer>
     boolean existsByProjectAndSenderAndTypeAndStatus(Project project, User sender, InvitationType type, InvitationStatus status);
     List<Invitation> findByReceiverAndTypeAndStatus(User receiver, InvitationType type, InvitationStatus status);
     List<Invitation> findByProjectAndTypeAndStatus(Project project, InvitationType type, InvitationStatus status);
+    List<Invitation> findByProjectInAndTypeAndStatus(List<Project> projects, InvitationType type, InvitationStatus status);
 }

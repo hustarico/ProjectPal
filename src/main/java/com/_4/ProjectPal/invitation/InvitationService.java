@@ -12,4 +12,5 @@ public interface InvitationService {
     InvitationResponse respondToInvitation(Integer invitationId, RespondInvitationRequest request, User currentUser);
     List<InvitationResponse> getPendingInvitationsForUser(User currentUser);
     List<InvitationResponse> getPendingJoinRequestsForProject(Integer projectId, User currentUser);
+    List<InvitationResponse> getJoinRequestsForOwner(User currentUser);
 }

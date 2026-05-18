@@ -195,6 +195,19 @@ public class InvitationServiceImpl implements InvitationService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<InvitationResponse> getJoinRequestsForOwner(User currentUser) {
+        // Get all projects owned by the current user
+        List<Project> ownedProjects = projectRepository.findByOwnerIdAndIsDeletedFalse(currentUser.getId());
+        
+        // Collect all pending join requests for these projects
+        return invitationRepository.findByProjectInAndTypeAndStatus(
+                ownedProjects, InvitationType.JOIN_REQUEST, InvitationStatus.PENDING)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     private InvitationResponse toResponse(Invitation invitation) {
         return InvitationResponse.builder()
                 .id(invitation.getId())

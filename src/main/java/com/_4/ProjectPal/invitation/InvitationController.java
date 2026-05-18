@@ -55,7 +55,12 @@ public class InvitationController {
 
     @GetMapping("/join-requests/{projectId}")
     public List<InvitationResponse> getPendingJoinRequestsForProject(@PathVariable Integer projectId,
-                                                                      Authentication authentication) {
+                                                                       Authentication authentication) {
         return invitationService.getPendingJoinRequestsForProject(projectId, currentUser(authentication));
+    }
+
+    @GetMapping("/my-join-requests")
+    public List<InvitationResponse> getJoinRequestsForOwner(Authentication authentication) {
+        return invitationService.getJoinRequestsForOwner(currentUser(authentication));
     }
 }
