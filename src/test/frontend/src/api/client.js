@@ -1,10 +1,23 @@
 import axios from 'axios';
 
+const AUTH_PATHS = [
+  '/api/auth/authenticate',
+  '/api/auth/register',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
+];
+
 const api = axios.create({
   baseURL: 'http://localhost:8080',
 });
 
 api.interceptors.request.use(config => {
+  const isAuthRequest = AUTH_PATHS.some(path => config.url?.includes(path));
+  if (isAuthRequest) {
+    delete config.headers.Authorization;
+    return config;
+  }
+
   const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

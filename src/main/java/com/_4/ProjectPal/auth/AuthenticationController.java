@@ -3,6 +3,7 @@ package com._4.ProjectPal.auth;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +55,9 @@ public class AuthenticationController {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             authenticationService.logout(authHeader.substring(7));
         }
+
+
+        SecurityContextHolder.clearContext();
         return ResponseEntity.ok().build();
     }
 }

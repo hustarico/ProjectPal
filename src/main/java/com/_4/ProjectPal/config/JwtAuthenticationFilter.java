@@ -40,28 +40,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String username = jwtService.extractUsername(jwt);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        try {
+            final String username = jwtService.extractUsername(jwt);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                String tokenId = jwtService.extractTokenId(jwt);
-                boolean isBlacklisted = tokenId != null && blacklistedTokenRepository.existsByTokenId(tokenId);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
-                if (!isBlacklisted) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    String tokenId = jwtService.extractTokenId(jwt);
+                    boolean isBlacklisted = tokenId != null && blacklistedTokenRepository.existsByTokenId(tokenId);
+
+                    if (!isBlacklisted) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails,
+                                        null,
+                                        userDetails.getAuthorities()
+                                );
+                        authToken.setDetails(
+                                new WebAuthenticationDetailsSource().buildDetails(request)
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
             }
+        } catch (RuntimeException e) {
+            // Token is expired, malformed, user not found, or other token-related error.
+            // Do not set authentication — the request proceeds as unauthenticated.
+            // Spring Security's authorization rules (permitAll / authenticated)
+            // will handle the response appropriately.
         }
 
         filterChain.doFilter(request, response);
