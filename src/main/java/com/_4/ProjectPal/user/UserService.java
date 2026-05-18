@@ -5,6 +5,7 @@ import com._4.ProjectPal.user.dto.ChangePasswordRequest;
 import com._4.ProjectPal.user.dto.UpdateProfileRequest;
 import com._4.ProjectPal.user.dto.UserProfileResponse;
 import com._4.ProjectPal.user.dto.UserSkillResponse;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

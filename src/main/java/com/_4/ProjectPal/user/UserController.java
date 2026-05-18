@@ -39,6 +39,7 @@ public class UserController {
         return userService.getProfile(id);
     }
 
+
     @RequestMapping(value = "/me", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public UserProfileResponse updateProfile(Authentication authentication,
                                                @RequestBody UpdateProfileRequest request) {
